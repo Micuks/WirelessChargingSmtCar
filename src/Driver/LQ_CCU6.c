@@ -111,8 +111,8 @@ void CCU60_CH1_IRQHandler(void)
     /* 用户代码 */
     /* 获取编码器值 */
 
-    ECPULSE1 = -ENC_GetCounter(ENC4_InPut_P02_8); // 电机 母板上编码器1，小车前进为负值
-    ECPULSE2 = ENC_GetCounter(ENC2_InPut_P33_7);  // 电机 母板上编码器2，小车前进为正值
+    ECPULSE1 = -ENC_GetCounter(ENC4_InPut_P02_8); // 左电机 母板上编码器1，小车前进为负值
+    ECPULSE2 = ENC_GetCounter(ENC6_InPut_P20_3);  // 右电机 母板上编码器2，小车前进为正值
 
     /********************检测发射线圈位置并校准********************************/
     //触发
