@@ -2062,7 +2062,7 @@ uint8_t UpdowmSide[2][LCDW];    //左右边线数组
 void TFT_Show_Camera_Info(void)
 {
     //按下K2锁死屏幕画面，不可恢复（用以观察现阶段边线特征）
-    if(KEY_Read(KEY2)==0) while(1);
+    // if(KEY_Read(KEY2)==0) while(1);
        /* 调试时可以打开这里 */
     if(KEY_Read(KEY0)==0)
     {
@@ -2169,16 +2169,16 @@ void CameraCar (void)
 //       }
     /*************************车库识别代码***********************************/
     /*************************这部分未修改***********************************/
-//       if(g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0&& g_ucFlagFork == 0)
-//       {
-//           /* 检测车库 */
-//           RoadIsCross(ImageSide, &g_ucFlagZebra);
-//       }
-//       if(g_ucFlagZebra)
-//       {
-//           /* 车库处理 */
-//           ZebraProcess(Image_Use,1,1200);
-//       }
+      if(g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0&& g_ucFlagFork == 0)
+      {
+          /* 检测车库 */
+          RoadIsCross(ImageSide, &g_ucFlagZebra);
+      }
+      if(g_ucFlagZebra)
+      {
+          /* 车库处理 */
+          ZebraProcess(Image_Use,1,1200);
+      }
 
      /* 根据主跑行，求取舵机偏差 */
      g_sSteeringError = RoadGetSteeringError(ImageSide, ROAD_MAIN_ROW);
@@ -2188,5 +2188,7 @@ void CameraCar (void)
      if(ServoDuty>170) ServoDuty=170;
      if(ServoDuty<-170) ServoDuty=-170;
      //舵机打角
-     ServoCtrl(Servo_Center_Mid-ServoDuty);
+    //  ServoCtrl(Servo_Center_Mid-ServoDuty);
+    // 电机差速控制
+    //  MotorCtrl(MotorDuty1-ServoDuty, MotorDuty2+ServoDuty);
 }

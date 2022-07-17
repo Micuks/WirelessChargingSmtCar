@@ -144,6 +144,7 @@ unsigned short val3;
 *************************************************************************/
 int core0_main (void)
 {
+    unsigned char cnt=0;
 	// 关闭CPU总中断
 	IfxCpu_disableInterrupts();
 
@@ -177,54 +178,61 @@ int core0_main (void)
 	mutexCpu0TFTIsOk=0;         // CPU1： 0占用/1释放 TFT
 	  //位置
 
-	ServoInit();    // 舵机初始化
-	MotorInit();    // 电机初始化
-	EncInit();      // 编码器初始化
+	// ServoInit();    // 舵机初始化
+	// MotorInit();    // 电机初始化
+	// EncInit();      // 编码器初始化
 
-	//PID参数设置
-    PidInit(&LSpeed_PID);
-    PidInit(&RSpeed_PID);
-    LSpeed_PID.kp = 250;
-    LSpeed_PID.ki = 1.2;
-    LSpeed_PID.kd = 0.5;
-    RSpeed_PID.kp = 250;
-    RSpeed_PID.ki = 1.2;
-    RSpeed_PID.kd = 0.5;
+	// //PID参数设置
+    // PidInit(&LSpeed_PID);
+    // PidInit(&RSpeed_PID);
+    // LSpeed_PID.kp = 250;
+    // LSpeed_PID.ki = 1.2;
+    // LSpeed_PID.kd = 0.5;
+    // RSpeed_PID.kp = 250;
+    // RSpeed_PID.ki = 1.2;
+    // RSpeed_PID.kd = 0.5;
 
-    /* 摄像头初始化 */
-    CAMERA_Init(50);
+    // /* 摄像头初始化 */
+    // CAMERA_Init(50);
 
-    ADC_InitConfig(ADC0, 80000); // ADC采集初始化
-    ADC_InitConfig(ADC1, 80000);
-    ADC_InitConfig(ADC2, 80000);
-    ADC_InitConfig(ADC3, 80000);
+    // ADC_InitConfig(ADC0, 80000); // ADC采集初始化
+    // ADC_InitConfig(ADC1, 80000);
+    // ADC_InitConfig(ADC2, 80000);
+    // ADC_InitConfig(ADC3, 80000);
 
-    //开启CCU6定时器
-    CCU6_InitConfig(CCU60, CCU6_Channel1, 5000);  // 5ms进入一次中断
+    // //开启CCU6定时器
+    // CCU6_InitConfig(CCU60, CCU6_Channel1, 5000);  // 5ms进入一次中断
 
-    char txt[32];
-    while (1)	//主循环
-    {
-        //数据滤波
-        LQ_drv_val(&val0, &val1);
-        //屏幕信息显示
-//        sprintf(txt, "%04d", val0);           //前信号检测板
-//        TFTSPI_P6X8Str(16, 15,txt,u16WHITE,u16BLUE);
-//        sprintf(txt, "%04d", val1);           //后信号检测板
-//        TFTSPI_P6X8Str(21, 15,txt,u16WHITE,u16BLUE);
-//        sprintf(txt, "ADC2: %04d", val2);           //电池电量
-//        TFTSPI_P8X16Str(0,2,txt,u16WHITE,u16BLACK);
-//        sprintf(txt, "ADC3: %04d", val3);           //充电速度
-//        TFTSPI_P8X16Str(0,3,txt,u16WHITE,u16BLACK);
-//        sprintf(txt, "%04d", ECPULSE1);             //左轮编码器
-//        TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
-//        sprintf(txt, "%04d", ECPULSE2);             //右轮编码器
-//        TFTSPI_P6X8Str(0, 14, txt, u16RED, u16BLUE);
-//        sprintf(txt, "%04d", MotorDuty1);           //左轮PWM值
-//        TFTSPI_P6X8Str(8, 13, txt, u16RED, u16BLUE);
-//        sprintf(txt, "%04d", MotorDuty2);           //右轮PWM值
-//        TFTSPI_P6X8Str(8, 14, txt, u16RED, u16BLUE);
-        TFT_Show_Camera_Info();
+    // char txt[32];
+    // while (1)	//主循环
+    // {
+    //     //数据滤波
+    //     LQ_drv_val(&val0, &val1);
+    //     //屏幕信息显示
+    //     sprintf(txt, "SIG_F:%04d", val0);           //前信号检测板
+    //     TFTSPI_P6X8Str(16, 15,txt,u16WHITE,u16BLUE);
+    //     sprintf(txt, "SIG_R:%04d", val1);           //后信号检测板
+    //     TFTSPI_P6X8Str(21, 15,txt,u16WHITE,u16BLUE);
+    //     sprintf(txt, "ADC2: %04d", val2);           //电池电量
+    //     TFTSPI_P8X16Str(0,2,txt,u16WHITE,u16BLACK);
+    //     sprintf(txt, "ADC3: %04d", val3);           //充电速度
+    //     TFTSPI_P8X16Str(0,3,txt,u16WHITE,u16BLACK);
+    //     sprintf(txt, "ENC_L:%04d", ECPULSE1);             //左轮编码器
+    //     TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
+    //     sprintf(txt, "ENC_R:%04d", ECPULSE2);             //右轮编码器
+    //     TFTSPI_P6X8Str(0, 14, txt, u16RED, u16BLUE);
+    //     sprintf(txt, "PWM_L:%04d", MotorDuty1);           //左轮PWM值
+    //     TFTSPI_P6X8Str(8, 13, txt, u16RED, u16BLUE);
+    //     sprintf(txt, "PWM_R:%04d", MotorDuty2);           //右轮PWM值
+    //     TFTSPI_P6X8Str(8, 14, txt, u16RED, u16BLUE);
+    //     // TFT_Show_Camera_Info();
+    // }
+    TEST_ADC_TFT();
+    while(1) {
+        UART_PutStr(UART0, "UART0 TEST\r\n");
+        printf("UART0 printf() test cnt=%03d\r\n", cnt++);
+        LED_Ctrl(LED0, RVS);
+        delay(100ms);
     }
 }
 

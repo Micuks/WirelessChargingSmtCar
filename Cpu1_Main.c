@@ -119,18 +119,18 @@ int core1_main (void)
 
     // 所有含有中断的测试都默认在CPU0中执行，如果需要用CPU1请参考龙邱B站视频。
     // 程序配套视频地址：https://space.bilibili.com/95313236
-    CCU6_InitConfig(CCU60, CCU6_Channel0, 100*1000);  // 100us进入一次中断
-    CCU6_InitConfig(CCU61, CCU6_Channel0, 100*1000);  // 100us进入一次中断
+    // CCU6_InitConfig(CCU60, CCU6_Channel0, 100*1000);  // 100us进入一次中断
+    // CCU6_InitConfig(CCU61, CCU6_Channel0, 100*1000);  // 100us进入一次中断
     while(1)//主循环
     {
-        if (Camera_Flag == 2)
-        {
-            Get_Use_Image();     // 取出赛道及显示所需图像数据
-            Get_Bin_Image(3);    // 转换为01格式数据，0、1原图；2、3边沿提取
-            Bin_Image_Filter();  // 滤波，三面被围的数据将被修改为同一数值
-            ImageGetSide(Bin_Image, ImageSide);     //提取赛道边线
-            UpdownSideGet(Bin_Image, UpdowmSide);   //提取赛道边线
-            Camera_Flag = 0;     // 清除摄像头采集完成标志位  如果不清除，则不会再次采集数据
-        }
+        // if (Camera_Flag == 2)
+        // {
+        //     Get_Use_Image();     // 取出赛道及显示所需图像数据
+        //     Get_Bin_Image(3);    // 转换为01格式数据，0、1原图；2、3边沿提取
+        //     Bin_Image_Filter();  // 滤波，三面被围的数据将被修改为同一数值
+        //     ImageGetSide(Bin_Image, ImageSide);     //提取赛道边线
+        //     UpdownSideGet(Bin_Image, UpdowmSide);   //提取赛道边线
+        //     Camera_Flag = 0;     // 清除摄像头采集完成标志位  如果不清除，则不会再次采集数据
+        // }
     }
 }

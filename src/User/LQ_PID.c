@@ -36,7 +36,7 @@ float constrain_float(float amt, float low, float high)
 // pid参数初始化函数
 void PidInit(pid_param_t * pid)
 {
-	pid->kp        = 0;
+	pid->kp        = 1;
 	pid->ki        = 0;
 	pid->kd        = 0;
 	pid->imax      = 0;

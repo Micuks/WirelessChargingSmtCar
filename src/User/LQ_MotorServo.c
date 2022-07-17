@@ -325,8 +325,8 @@ void TestMotor (void)
             duty = 3500;
         }
 
-        //MotorCtrl(duty, duty);
-        MotorCtrl4w(duty,duty,duty,duty);
+        MotorCtrl(duty, duty);
+        // MotorCtrl4w(duty,duty,duty,duty);
         sprintf(txt, "PWM: %05d;", duty);
         TFTSPI_P8X16Str(0, 5, txt, u16WHITE, u16BLACK);       //×Ö·û´®ÏÔÊ¾
         UART_PutStr(UART0, txt);
