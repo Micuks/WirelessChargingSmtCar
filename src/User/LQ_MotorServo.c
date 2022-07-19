@@ -209,23 +209,23 @@ void MotorCtrl(sint32 motor1, sint32 motor2)
 {
     if (motor1 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P32, 4);
     }
     else
     {
-        ATOM_PWM_SetDuty(MOTOR1_P, (0 - motor1), MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_P, (0 - motor1), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P32, 4);
     }
 
     if (motor2 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_P, motor2, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P22, 3);
     }
     else
     {
-        ATOM_PWM_SetDuty(MOTOR2_P, (0 - motor2), MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_P, (0 - motor2), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P22, 3);
     }
 }
