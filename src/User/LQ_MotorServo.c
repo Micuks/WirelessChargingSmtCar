@@ -311,12 +311,20 @@ void TestMotor(void)
         }
         if (KEY_Read(KEY2) == 0) //按下KEY2键，占空比加大
         {
-            if(duty < ATOM_PWM_MAX)
+            if (duty < ATOM_PWM_MAX)
                 duty += 500;
         }
         if (KEY_Read(KEY1) == 0) //按下KEY1键，占空比中值
         {
-            duty = 3500;
+            if(duty == 3500) {
+                duty = -3500;
+            } else if(duty == -3500) {
+                duty = 3500;
+            } else if(duty >= 0) {
+                duty = 3500;
+            } else if(duty < 0) {
+                duty == -3500;
+            }
         }
 
         MotorCtrl(duty, duty);

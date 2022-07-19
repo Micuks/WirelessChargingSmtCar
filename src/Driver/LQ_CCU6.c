@@ -141,7 +141,7 @@ void CCU60_CH1_IRQHandler(void)
     }
     if (Power_Off == 1)
     {
-        motor_flag = 0;
+        motor_flag = 1;
         sum += ECPULSE1;
         if (sum > 15000)
         {
