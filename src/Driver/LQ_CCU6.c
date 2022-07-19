@@ -35,18 +35,18 @@
 #include "LQ_ImageProcess.h"
 #include "LQ_ADC.h"
 
-volatile sint16 ECPULSE1 = 0;               // 速度全局变量
-volatile sint16 ECPULSE2 = 0;               // 速度全局变量
-volatile sint32 RAllPulse = 0;              // 速度全局变量
+volatile sint16 ECPULSE1 = 0;  // 速度全局变量
+volatile sint16 ECPULSE2 = 0;  // 速度全局变量
+volatile sint32 RAllPulse = 0; // 速度全局变量
 
-volatile sint16 Target_Speed1 = 45;         // 速度全局变量
-volatile sint16 Target_Speed2 = 45;         // 速度全局变量
-unsigned char Power_On = 0;                 //充电标志位    0不充电  1充电，
-unsigned char Power_Off = 0;                //充电标志位    0不充电  1充电
-unsigned char motor_flag = 0;               //电机启停标志位
-extern unsigned short val0, val1, val2, val3;   //线圈信息1 线圈信息2   电池信息    充电信息
-unsigned int sum=0;                         //编码器累计值
-sint16 pw_err = 0;                              //位置误差
+volatile sint16 Target_Speed1 = 45;           // 速度全局变量
+volatile sint16 Target_Speed2 = 45;           // 速度全局变量
+unsigned char Power_On = 0;                   //充电标志位    0不充电  1充电，
+unsigned char Power_Off = 0;                  //充电标志位    0不充电  1充电
+unsigned char motor_flag = 0;                 //电机启停标志位
+extern unsigned short val0, val1, val2, val3; //线圈信息1 线圈信息2   电池信息    充电信息
+unsigned int sum = 0;                         //编码器累计值
+sint16 pw_err = 0;                            //位置误差
 unsigned char Pw_flag = 0;
 
 IFX_INTERRUPT(CCU60_CH0_IRQHandler, CCU60_VECTABNUM, CCU60_CH0_PRIORITY);
@@ -62,8 +62,7 @@ const uint8 Ccu6IrqPriority[4] = {CCU60_CH0_PRIORITY, CCU60_CH1_PRIORITY, CCU61_
 
 /** CCU6中断服务函数地址 */
 const void *Ccu6IrqFuncPointer[4] = {&CCU60_CH0_IRQHandler, &CCU60_CH1_IRQHandler, &CCU61_CH0_IRQHandler,
-        &CCU61_CH1_IRQHandler};
-
+                                     &CCU61_CH1_IRQHandler};
 
 extern pid_param_t LSpeed_PID;
 extern pid_param_t RSpeed_PID;
@@ -81,11 +80,11 @@ extern sint16 MotorDuty2;
  *  修改时间：2020年3月30日
  *  备    注：CCU60_CH0使用的中断服务函数
  *************************************************************************/
-void CCU60_CH0_IRQHandler (void)
+void CCU60_CH0_IRQHandler(void)
 {
     /* 开启CPU中断  否则中断不可嵌套 */
-//   IfxCpu_enableInterrupts();
-// 清除中断标志
+    //   IfxCpu_enableInterrupts();
+    // 清除中断标志
     IfxCcu6_clearInterruptStatusFlag(&MODULE_CCU60, IfxCcu6_InterruptSource_t12PeriodMatch);
 
     /* 用户代码 */
@@ -101,7 +100,7 @@ void CCU60_CH0_IRQHandler (void)
  *  修改时间：2020年3月30日
  *  备    注：CCU60_CH1使用的中断服务函数
  *************************************************************************/
-void CCU60_CH1_IRQHandler (void)
+void CCU60_CH1_IRQHandler(void)
 {
     /* 开启CPU中断  否则中断不可嵌套 */
     IfxCpu_enableInterrupts();
@@ -117,29 +116,35 @@ void CCU60_CH1_IRQHandler (void)
 
     /********************检测发射线圈位置并校准********************************/
     //触发
-    if((val0 > 2000) && (val1 > 1800) && (Power_On == 0) && (Power_Off == 0)){
+    if ((val0 > 2000) && (val1 > 1800) && (Power_On == 0) && (Power_Off == 0))
+    {
         Power_On = 1;
-        motor_flag=0;
+        motor_flag = 0;
     }
     //触发后执行
-    if((Power_On == 1) &&(Pw_flag == 0)){
-        pw_err = (val0 - val1)/20;
-        if((val3 > 900) || (val0 > 2250)){
+    if ((Power_On == 1) && (Pw_flag == 0))
+    {
+        pw_err = (val0 - val1) / 20;
+        if ((val3 > 900) || (val0 > 2250))
+        {
             Pw_flag = 1;
         }
     }
-    if(Pw_flag == 1){
-        pw_err = (val0 - val1)/20;
-        if(val2 > 1500)//充电完成
+    if (Pw_flag == 1)
+    {
+        pw_err = (val0 - val1) / 20;
+        if (val2 > 1500) //充电完成
         {
             Power_Off = 1;
             Power_On = 0;
         }
     }
-    if(Power_Off == 1){
+    if (Power_Off == 1)
+    {
         motor_flag = 0;
         sum += ECPULSE1;
-        if(sum > 15000){
+        if (sum > 15000)
+        {
             Power_Off = 0;
             sum = 0;
             Pw_flag = 0;
@@ -147,34 +152,45 @@ void CCU60_CH1_IRQHandler (void)
     }
 
     /***************************电机闭环和差速********************************/
-    if((Power_On == 0) && (motor_flag == 0))
+    if ((Power_On == 0) && (motor_flag == 0))
     {
         //差速处理，差速比例自己修改
-        if(ServoDuty > 0)
+        if (ServoDuty > 0)
         {
-           MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty/5));//-ServoDuty
-           MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty/5));
+            MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 5)); //-ServoDuty
+            MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 5));
         }
         else
         {
-           MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty/5));
-           MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty/5));//+ServoDuty
+            MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 5));
+            MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 5)); //+ServoDuty
         }
     }
     else
     {
-        MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(0 - ECPULSE1 + pw_err));//-ServoDuty
+        MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(0 - ECPULSE1 + pw_err)); //-ServoDuty
         MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
     //电机限幅
-    if(MotorDuty1 > 5000)MotorDuty1 = 5000;else if(MotorDuty1 < -5000)MotorDuty1 = -5000;
-    if(LSpeed_PID.out > 5000)LSpeed_PID.out = 5000;else if(LSpeed_PID.out < -5000)LSpeed_PID.out = -5000;
+    if (MotorDuty1 > 5000)
+        MotorDuty1 = 5000;
+    else if (MotorDuty1 < -5000)
+        MotorDuty1 = -5000;
+    if (LSpeed_PID.out > 5000)
+        LSpeed_PID.out = 5000;
+    else if (LSpeed_PID.out < -5000)
+        LSpeed_PID.out = -5000;
 
-    if(MotorDuty2 > 5000)MotorDuty2 = 5000;else if(MotorDuty2 < -5000)MotorDuty2 = -5000;
-    if(RSpeed_PID.out > 5000)RSpeed_PID.out = 5000;else if(RSpeed_PID.out < -5000)RSpeed_PID.out = -5000;
+    if (MotorDuty2 > 5000)
+        MotorDuty2 = 5000;
+    else if (MotorDuty2 < -5000)
+        MotorDuty2 = -5000;
+    if (RSpeed_PID.out > 5000)
+        RSpeed_PID.out = 5000;
+    else if (RSpeed_PID.out < -5000)
+        RSpeed_PID.out = -5000;
 
     MotorCtrl(MotorDuty1, MotorDuty2);
-
 }
 
 /*************************************************************************
@@ -185,7 +201,7 @@ void CCU60_CH1_IRQHandler (void)
  *  修改时间：2020年3月30日
  *  备    注：CCU61_CH0使用的中断服务函数
  *************************************************************************/
-void CCU61_CH0_IRQHandler (void)
+void CCU61_CH0_IRQHandler(void)
 {
     /* 开启CPU中断  否则中断不可嵌套 */
     IfxCpu_enableInterrupts();
@@ -194,10 +210,10 @@ void CCU61_CH0_IRQHandler (void)
     IfxCcu6_clearInterruptStatusFlag(&MODULE_CCU61, IfxCcu6_InterruptSource_t12PeriodMatch);
 
     /* ADC采集 */
-    val0=ADC_Read(ADC0);
-    val1=ADC_Read(ADC1);
-    val2=ADC_Read(ADC2);
-    val3=ADC_Read(ADC3);
+    val0 = ADC_Read(ADC0);
+    val1 = ADC_Read(ADC1);
+    val2 = ADC_Read(ADC2);
+    val3 = ADC_Read(ADC3);
 }
 /*************************************************************************
  *  函数名称：void CCU61_CH1_IRQHandler(void)
@@ -207,7 +223,7 @@ void CCU61_CH0_IRQHandler (void)
  *  修改时间：2020年3月30日
  *  备    注：CCU61_CH1使用的中断服务函数
  *************************************************************************/
-void CCU61_CH1_IRQHandler (void)
+void CCU61_CH1_IRQHandler(void)
 {
     /* 开启CPU中断  否则中断不可嵌套 */
     IfxCpu_enableInterrupts();
@@ -216,7 +232,7 @@ void CCU61_CH1_IRQHandler (void)
     IfxCcu6_clearInterruptStatusFlag(&MODULE_CCU61, IfxCcu6_InterruptSource_t13PeriodMatch);
 
     /* 用户代码 */
-    LED_Ctrl(LED0, RVS);        // 电平翻转,LED闪烁
+    LED_Ctrl(LED0, RVS); // 电平翻转,LED闪烁
 }
 
 /*************************************************************************
@@ -229,11 +245,11 @@ void CCU61_CH1_IRQHandler (void)
  *  修改时间：2020年3月30日
  *  备    注：    CCU6_InitConfig(CCU60, CCU6_Channel0, 100);  // 100us进入一次中断
  *************************************************************************/
-void CCU6_InitConfig (CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
+void CCU6_InitConfig(CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
 {
     IfxCcu6_Timer_Config timerConfig;
 
-    Ifx_CCU6 * module = IfxCcu6_getAddress((IfxCcu6_Index) ccu6);
+    Ifx_CCU6 *module = IfxCcu6_getAddress((IfxCcu6_Index)ccu6);
 
     uint8 Index = ccu6 * 2 + channel;
 
@@ -252,7 +268,7 @@ void CCU6_InitConfig (CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
     uint8 i = 0;
     while (i++ < 16)
     {
-        period = (uint32) (clk * us / 1000000);
+        period = (uint32)(clk * us / 1000000);
         if (period < 0xffff)
         {
             break;
@@ -264,29 +280,29 @@ void CCU6_InitConfig (CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
     }
     switch (channel)
     {
-        case CCU6_Channel0 :
-            timerConfig.timer = IfxCcu6_TimerId_t12;
-            timerConfig.interrupt1.source = IfxCcu6_InterruptSource_t12PeriodMatch;
-            timerConfig.interrupt1.serviceRequest = IfxCcu6_ServiceRequest_1;
-            timerConfig.base.t12Frequency = (float) clk;
-            timerConfig.base.t12Period = period;                                  // 设置定时中断
-            timerConfig.clock.t12countingInputMode = IfxCcu6_CountingInputMode_internal;
-            timerConfig.timer12.counterValue = 0;
-            timerConfig.interrupt1.typeOfService = Ccu6IrqVectabNum[ccu6];
-            timerConfig.interrupt1.priority = Ccu6IrqPriority[Index];
-            break;
+    case CCU6_Channel0:
+        timerConfig.timer = IfxCcu6_TimerId_t12;
+        timerConfig.interrupt1.source = IfxCcu6_InterruptSource_t12PeriodMatch;
+        timerConfig.interrupt1.serviceRequest = IfxCcu6_ServiceRequest_1;
+        timerConfig.base.t12Frequency = (float)clk;
+        timerConfig.base.t12Period = period; // 设置定时中断
+        timerConfig.clock.t12countingInputMode = IfxCcu6_CountingInputMode_internal;
+        timerConfig.timer12.counterValue = 0;
+        timerConfig.interrupt1.typeOfService = Ccu6IrqVectabNum[ccu6];
+        timerConfig.interrupt1.priority = Ccu6IrqPriority[Index];
+        break;
 
-        case CCU6_Channel1 :
-            timerConfig.timer = IfxCcu6_TimerId_t13;
-            timerConfig.interrupt2.source = IfxCcu6_InterruptSource_t13PeriodMatch;
-            timerConfig.interrupt2.serviceRequest = IfxCcu6_ServiceRequest_2;
-            timerConfig.base.t13Frequency = (float) clk;
-            timerConfig.base.t13Period = period;
-            timerConfig.clock.t13countingInputMode = IfxCcu6_CountingInputMode_internal;
-            timerConfig.timer13.counterValue = 0;
-            timerConfig.interrupt2.typeOfService = Ccu6IrqVectabNum[ccu6];
-            timerConfig.interrupt2.priority = Ccu6IrqPriority[Index];
-            break;
+    case CCU6_Channel1:
+        timerConfig.timer = IfxCcu6_TimerId_t13;
+        timerConfig.interrupt2.source = IfxCcu6_InterruptSource_t13PeriodMatch;
+        timerConfig.interrupt2.serviceRequest = IfxCcu6_ServiceRequest_2;
+        timerConfig.base.t13Frequency = (float)clk;
+        timerConfig.base.t13Period = period;
+        timerConfig.clock.t13countingInputMode = IfxCcu6_CountingInputMode_internal;
+        timerConfig.timer13.counterValue = 0;
+        timerConfig.interrupt2.typeOfService = Ccu6IrqVectabNum[ccu6];
+        timerConfig.interrupt2.priority = Ccu6IrqPriority[Index];
+        break;
     }
 
     timerConfig.trigger.t13InSyncWithT12 = FALSE;
@@ -295,7 +311,7 @@ void CCU6_InitConfig (CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
 
     IfxCcu6_Timer_initModule(&Ccu6Timer, &timerConfig);
 
-    IfxCpu_Irq_installInterruptHandler((void*) Ccu6IrqFuncPointer[Index], Ccu6IrqPriority[Index]);          // 配置中断函数和中断号
+    IfxCpu_Irq_installInterruptHandler((void *)Ccu6IrqFuncPointer[Index], Ccu6IrqPriority[Index]); // 配置中断函数和中断号
 
     restoreInterrupts(interrupt_state);
 
@@ -311,12 +327,11 @@ void CCU6_InitConfig (CCU6_t ccu6, CCU6_Channel_t channel, uint32 us)
  *  修改时间：2020年5月6日
  *  备    注：
  *************************************************************************/
-void CCU6_DisableInterrupt (CCU6_t ccu6, CCU6_Channel_t channel)
+void CCU6_DisableInterrupt(CCU6_t ccu6, CCU6_Channel_t channel)
 {
-    Ifx_CCU6 * module = IfxCcu6_getAddress((IfxCcu6_Index) ccu6);
-    IfxCcu6_clearInterruptStatusFlag(module, (IfxCcu6_InterruptSource) (7 + channel * 2));
-    IfxCcu6_disableInterrupt(module, (IfxCcu6_InterruptSource) (7 + channel * 2));
-
+    Ifx_CCU6 *module = IfxCcu6_getAddress((IfxCcu6_Index)ccu6);
+    IfxCcu6_clearInterruptStatusFlag(module, (IfxCcu6_InterruptSource)(7 + channel * 2));
+    IfxCcu6_disableInterrupt(module, (IfxCcu6_InterruptSource)(7 + channel * 2));
 }
 
 /*************************************************************************
@@ -328,11 +343,9 @@ void CCU6_DisableInterrupt (CCU6_t ccu6, CCU6_Channel_t channel)
  *  修改时间：2020年5月6日
  *  备    注：
  *************************************************************************/
-void CCU6_EnableInterrupt (CCU6_t ccu6, CCU6_Channel_t channel)
+void CCU6_EnableInterrupt(CCU6_t ccu6, CCU6_Channel_t channel)
 {
-    Ifx_CCU6 * module = IfxCcu6_getAddress((IfxCcu6_Index) ccu6);
-    IfxCcu6_clearInterruptStatusFlag(module, (IfxCcu6_InterruptSource) (7 + channel * 2));
-    IfxCcu6_enableInterrupt(module, (IfxCcu6_InterruptSource) (7 + channel * 2));
-
+    Ifx_CCU6 *module = IfxCcu6_getAddress((IfxCcu6_Index)ccu6);
+    IfxCcu6_clearInterruptStatusFlag(module, (IfxCcu6_InterruptSource)(7 + channel * 2));
+    IfxCcu6_enableInterrupt(module, (IfxCcu6_InterruptSource)(7 + channel * 2));
 }
-

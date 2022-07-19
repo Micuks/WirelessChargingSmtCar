@@ -134,6 +134,11 @@ unsigned short val1;
 unsigned short val2;
 unsigned short val3;
 
+extern unsigned char Powern_On;
+extern unsigned char Power_Off;
+extern unsigned char motor_flag;
+extern unsigned char Pw_flag;
+
 /*************************************************************************
  *  函数名称：int core0_main (void)
  *  功能说明：CPU0主函数
@@ -209,21 +214,28 @@ int core0_main(void)
 		LQ_drv_val(&val0, &val1);
 		// 屏幕信息显示
 		sprintf(txt, "FSIG: %04d", val0); //前信号检测板
-		TFTSPI_P6X8Str(0, 15, txt, u16WHITE, u16BLUE);
+		TFTSPI_P6X8Str(0, 5, txt, u16WHITE, u16BLUE);
 		sprintf(txt, "RSIG: %04d", val1); //后信号检测板
-		TFTSPI_P6X8Str(12, 15, txt, u16WHITE, u16BLUE);
+		TFTSPI_P6X8Str(0, 6, txt, u16WHITE, u16BLUE);
+
 		sprintf(txt, "ADC2: %04d", val2); //电池电量
-		TFTSPI_P8X16Str(0, 2, txt, u16WHITE, u16BLACK);
+		TFTSPI_P6X8Str(0, 2, txt, u16WHITE, u16BLACK);
 		sprintf(txt, "ADC3: %04d", val3); //充电速度
-		TFTSPI_P8X16Str(0, 3, txt, u16WHITE, u16BLACK);
+		TFTSPI_P6X8Str(0, 3, txt, u16WHITE, u16BLACK);
+
+		// TFTSPI_P8X16Str(bigger)
+
 		sprintf(txt, "LENC: %04d", ECPULSE1); //左轮编码器
 		TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
 		sprintf(txt, "RENC: %04d", ECPULSE2); //右轮编码器
 		TFTSPI_P6X8Str(0, 14, txt, u16RED, u16BLUE);
+
 		sprintf(txt, "LPWM: %04d", MotorDuty1); //左轮PWM值
 		TFTSPI_P6X8Str(12, 13, txt, u16RED, u16BLUE);
 		sprintf(txt, "RPWM: %04d", MotorDuty2); //右轮PWM值
 		TFTSPI_P6X8Str(12, 14, txt, u16RED, u16BLUE);
+
+
 		TFT_Show_Camera_Info();
 	}
 }
