@@ -229,7 +229,9 @@ int core0_main (void)
     // }
     // Test_ADC_TFT();
     // LQ_GPT_4mini512TFT();
-    Test_CAMERA();
+    // Test_CAMERA();
+	TestMotor();
+	
 
     while(1) {
         UART_PutStr(UART0, "UART0 TEST\r\n");
