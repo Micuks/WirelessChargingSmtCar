@@ -207,7 +207,7 @@ void MotorCtrl1(sint32 motor1)
 }
 void MotorCtrl(sint32 motor1, sint32 motor2)
 {
-    if (motor1 > 0)
+    if (motor1 < 0)
     {
         ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P32, 4);
