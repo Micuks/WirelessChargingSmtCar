@@ -72,8 +72,8 @@ void MotorInit(void) {
  *  ±¸    ×¢£ºÇý¶¯2¸ö±àÂëÆ÷
  *************************************************************************/
 void EncInit(void) {
-    ENC_InitConfig(ENC2_InPut_P33_7, ENC2_Dir_P33_6);
     ENC_InitConfig(ENC4_InPut_P02_8, ENC4_Dir_P33_5);
+    ENC_InitConfig(ENC6_InPut_P20_3, ENC6_Dir_P20_0);
 }
 
 /*************************************************************************
@@ -87,6 +87,7 @@ void EncInit(void) {
  *************************************************************************/
 #ifdef USE7843or7971
 #define rvsMotor
+
 void MotorCtrl(sint32 motor1, sint32 motor2) {
 #ifdef rvsMotor
     motor1 = -motor1;

@@ -2071,11 +2071,14 @@ void TFT_Show_Camera_Info(void)
     sprintf(txt, "%05d", g_sSteeringError); //误差值
     TFTSPI_P6X8Str(0, 15, txt, u16RED, u16BLUE);
 
-    sprintf(txt, "%02d", g_ucFlagRoundabout); //环岛标志
-    TFTSPI_P6X8Str(8, 15, txt, u16RED, u16BLUE);
+    sprintf(txt, "R[%02d]", g_ucFlagRoundabout); //环岛标志
+    TFTSPI_P6X8Str(6, 15, txt, u16RED, u16BLUE);
 
-    sprintf(txt, "%02d", g_ucFlagT); // T口标志
+    sprintf(txt, "T[%02d]", g_ucFlagT); // T口标志
     TFTSPI_P6X8Str(12, 15, txt, u16RED, u16BLUE);
+
+    sprintf(txt, "Y[%01d]", g_ucFlagFork); // Y标志
+    TFTSPI_P6X8Str(18, 15, txt, u16RED, u16BLUE);
 }
 /*************************************************************************
  *  函数名称：void CameraCar(void)
@@ -2089,12 +2092,6 @@ static uint8_t g_ucFlagRoundabout_flag = 0;
 //环岛元素处理，其中自行修改得参数与小车的速度，误差放大比例有关，需要同学们自己根据实际情况来修改
 void CameraCar(void)
 {
-    sprintf(txt, "R[%01d]", g_ucFlagRoundabout); // 环岛标志
-    TFTSPI_P6X8Str(0, 0, txt, u16WHITE, u16BLUE);
-    sprintf(txt, "Y[%01d]", g_ucFlagFork); // Y标志
-    TFTSPI_P6X8Str(5, 0, txt, u16WHITE, u16BLUE);
-    sprintf(txt, "T[%01d]", g_ucFlagT);
-    TFTSPI_P6X8Str(10, 0, txt, u16WHITE, u16BLUE);
 
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
 
