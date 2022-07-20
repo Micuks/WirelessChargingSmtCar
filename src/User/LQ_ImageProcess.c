@@ -2090,7 +2090,7 @@ static uint8_t g_ucFlagRoundabout_flag = 0;
 void CameraCar(void)
 {
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
-                         //    uint8_t pointY;
+    uint8_t pointY;
 
     if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0)
     {

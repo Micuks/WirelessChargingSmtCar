@@ -121,12 +121,12 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 #include "LQ_TFT2.h"
 #include "LQ_IIC_Gyro.h"
 #include "LQ_ADC.h"
-App_Cpu0 g_AppCpu0;                       // brief CPU 0 global data
-IfxCpu_mutexLock mutexCpu0InitIsOk = 1;   // CPU0 初始化完成标志位
-volatile char mutexCpu0TFTIsOk=0;         // CPU1 0占用/1释放 TFT
+App_Cpu0 g_AppCpu0;                     // brief CPU 0 global data
+IfxCpu_mutexLock mutexCpu0InitIsOk = 1; // CPU0 初始化完成标志位
+volatile char mutexCpu0TFTIsOk = 0;     // CPU1 0占用/1释放 TFT
 
-void LQ_drv_val(unsigned short* valure0, unsigned short* valure1);
-//extern pid_param_t BalDirgyro_PID;
+void LQ_drv_val(unsigned short *valure0, unsigned short *valure1);
+// extern pid_param_t BalDirgyro_PID;
 pid_param_t LSpeed_PID;
 pid_param_t RSpeed_PID;
 unsigned short val0;
@@ -135,54 +135,54 @@ unsigned short val2;
 unsigned short val3;
 
 /*************************************************************************
-*  函数名称：int core0_main (void)
-*  功能说明：CPU0主函数
-*  参数说明：无
-*  函数返回：无
-*  修改时间：2020年3月10日
-*  备    注：
-*************************************************************************/
-int core0_main (void)
+ *  函数名称：int core0_main (void)
+ *  功能说明：CPU0主函数
+ *  参数说明：无
+ *  函数返回：无
+ *  修改时间：2020年3月10日
+ *  备    注：
+ *************************************************************************/
+int core0_main(void)
 {
-    unsigned char cnt=0;
-	// 关闭CPU总中断
-	IfxCpu_disableInterrupts();
+    unsigned char cnt = 0;
+    // 关闭CPU总中断
+    IfxCpu_disableInterrupts();
 
-	// 关闭看门狗，如果不设置看门狗喂狗需要关闭
-	IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
-	IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
+    // 关闭看门狗，如果不设置看门狗喂狗需要关闭
+    IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
+    IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
 
-	// 读取总线频率
-	g_AppCpu0.info.pllFreq = IfxScuCcu_getPllFrequency();
-	g_AppCpu0.info.cpuFreq = IfxScuCcu_getCpuFrequency(IfxCpu_getCoreIndex());
-	g_AppCpu0.info.sysFreq = IfxScuCcu_getSpbFrequency();
-	g_AppCpu0.info.stmFreq = IfxStm_getFrequency(&MODULE_STM0);
+    // 读取总线频率
+    g_AppCpu0.info.pllFreq = IfxScuCcu_getPllFrequency();
+    g_AppCpu0.info.cpuFreq = IfxScuCcu_getCpuFrequency(IfxCpu_getCoreIndex());
+    g_AppCpu0.info.sysFreq = IfxScuCcu_getSpbFrequency();
+    g_AppCpu0.info.stmFreq = IfxStm_getFrequency(&MODULE_STM0);
 
-	TFTSPI_Init(0);               // TFT1.8初始化0:横屏  1：竖屏
-	TFTSPI_CLS(u16BLACK);         // 清屏
-	TFTSPI_Show_Logo(0,37);       // 显示龙邱LOGO
-	TFTSPI_P16x16Str(0,0,(unsigned char*)"北京龙邱智能科技",u16RED,u16BLUE);// 字符串显示
-	TFTSPI_CLS(u16BLACK);         // 清屏
-	// 按键初始化
-	GPIO_KEY_Init();
-	// LED灯所用P10.6和P10.5初始化
-	GPIO_LED_Init();
-	// 串口P14.0管脚输出,P14.1输入，波特率115200
-	UART_InitConfig(UART0_RX_P14_1,UART0_TX_P14_0, 115200);
-	// 开启CPU总中断
+    TFTSPI_Init(0);       // TFT1.8初始化0:横屏  1：竖屏
+    TFTSPI_CLS(u16BLACK); // 清屏
+    // TFTSPI_Show_Logo(0,37);       // 显示龙邱LOGO
+    TFTSPI_P16x16Str(8, 8, (unsigned char *)"TEST", u16RED, u16BLUE); // 字符串显示
+    TFTSPI_CLS(u16BLACK);                                             // 清屏
+    // 按键初始化
+    GPIO_KEY_Init();
+    // LED灯所用P10.6和P10.5初始化
+    GPIO_LED_Init();
+    // 串口P14.0管脚输出,P14.1输入，波特率115200
+    UART_InitConfig(UART0_RX_P14_1, UART0_TX_P14_0, 115200);
+    // 开启CPU总中断
 
-	IfxCpu_enableInterrupts();
-	// 通知CPU1，CPU0初始化完成
-	IfxCpu_releaseMutex(&mutexCpu0InitIsOk);
-	// 切记CPU0,CPU1...不可以同时开启屏幕显示，否则冲突不显示
-	mutexCpu0TFTIsOk=0;         // CPU1： 0占用/1释放 TFT
-	  //位置
+    IfxCpu_enableInterrupts();
+    // 通知CPU1，CPU0初始化完成
+    IfxCpu_releaseMutex(&mutexCpu0InitIsOk);
+    // 切记CPU0,CPU1...不可以同时开启屏幕显示，否则冲突不显示
+    mutexCpu0TFTIsOk = 0; // CPU1： 0占用/1释放 TFT
+                          //位置
 
-	// ServoInit();    // 舵机初始化
-	// MotorInit();    // 电机初始化
-	// EncInit();      // 编码器初始化
+    // ServoInit();    // 舵机初始化
+    // MotorInit();    // 电机初始化
+    // EncInit();      // 编码器初始化
 
-	// //PID参数设置
+    // //PID参数设置
     // PidInit(&LSpeed_PID);
     // PidInit(&RSpeed_PID);
     // LSpeed_PID.kp = 250;
@@ -209,14 +209,14 @@ int core0_main (void)
     //     //数据滤波
     //     LQ_drv_val(&val0, &val1);
     //     //屏幕信息显示
-        // sprintf(txt, "SIG_F:%04d", val0);           //前信号检测板
-        // TFTSPI_P6X8Str(16, 15,txt,u16WHITE,u16BLUE);
-        // sprintf(txt, "SIG_R:%04d", val1);           //后信号检测板
-        // TFTSPI_P6X8Str(21, 15,txt,u16WHITE,u16BLUE);
-        // sprintf(txt, "ADC2: %04d", val2);           //电池电量
-        // TFTSPI_P8X16Str(0,2,txt,u16WHITE,u16BLACK);
-        // sprintf(txt, "ADC3: %04d", val3);           //充电速度
-        // TFTSPI_P8X16Str(0,3,txt,u16WHITE,u16BLACK);
+    // sprintf(txt, "SIG_F:%04d", val0);           //前信号检测板
+    // TFTSPI_P6X8Str(16, 15,txt,u16WHITE,u16BLUE);
+    // sprintf(txt, "SIG_R:%04d", val1);           //后信号检测板
+    // TFTSPI_P6X8Str(21, 15,txt,u16WHITE,u16BLUE);
+    // sprintf(txt, "ADC2: %04d", val2);           //电池电量
+    // TFTSPI_P8X16Str(0,2,txt,u16WHITE,u16BLACK);
+    // sprintf(txt, "ADC3: %04d", val3);           //充电速度
+    // TFTSPI_P8X16Str(0,3,txt,u16WHITE,u16BLACK);
     //     sprintf(txt, "ENC_L:%04d", ECPULSE1);             //左轮编码器
     //     TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
     //     sprintf(txt, "ENC_R:%04d", ECPULSE2);             //右轮编码器
@@ -230,10 +230,10 @@ int core0_main (void)
     // Test_ADC_TFT();
     // LQ_GPT_4mini512TFT();
     // Test_CAMERA();
-	TestMotor();
-	
+    TestMotor();
 
-    while(1) {
+    while (1)
+    {
         UART_PutStr(UART0, "UART0 TEST\r\n");
         printf("UART0 printf() test cnt=%03d\r\n", cnt++);
         LED_Ctrl(LED0, RVS);
@@ -242,20 +242,20 @@ int core0_main (void)
 }
 
 /*************************************************************************
-*  函数名称：void LQ_drv_val (void)
-*  功能说明：CPU0主函数
-*  参数说明：无
-*  函数返回：无
-*  修改时间：2021年12月10日
-*  备    注：
-*************************************************************************/
-void LQ_drv_val(unsigned short *valure0, unsigned short* valure1)
+ *  函数名称：void LQ_drv_val (void)
+ *  功能说明：CPU0主函数
+ *  参数说明：无
+ *  函数返回：无
+ *  修改时间：2021年12月10日
+ *  备    注：
+ *************************************************************************/
+void LQ_drv_val(unsigned short *valure0, unsigned short *valure1)
 {
     static unsigned short num0;
     static unsigned short num1;
 
-    num0 = num0*6/10 + *valure0*4/10;
-    num1 = num1*6/10 + *valure1*4/10;
+    num0 = num0 * 6 / 10 + *valure0 * 4 / 10;
+    num1 = num1 * 6 / 10 + *valure1 * 4 / 10;
 
     *valure0 = num0;
     *valure1 = num1;

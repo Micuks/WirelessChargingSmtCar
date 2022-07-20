@@ -61,8 +61,8 @@ uint16 BatVolt = 0; // 电池电压采集
 #define ATOMSERVO1 IfxGtm_ATOM2_0_TOUT32_P33_10_OUT
 #define ATOMSERVO2 IfxGtm_ATOM2_5_TOUT35_P33_13_OUT
 
-//#define USE7843or7971   //USEDRV8701 使用龙邱不同的驱动模块，选择对应的宏定义
-#define USEDRV8701
+#define USE7843or7971   //USEDRV8701 使用龙邱不同的驱动模块，选择对应的宏定义
+// #define USEDRV8701
 
 /*************************************************************************
  *  函数名称：void MotorInit(void)
@@ -126,24 +126,24 @@ void MotorCtrl(sint32 motor1, sint32 motor2)
 {
     if (motor1 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, 0, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_N, 0, MOTOR_FREQUENCY);
     }
     else
     {
-        ATOM_PWM_SetDuty(MOTOR1_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, (-motor1), MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_P, 0, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR3_N, (-motor1), MOTOR_FREQUENCY);
     }
 
     if (motor2 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, 0, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_P, motor2, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_N, 0, MOTOR_FREQUENCY);
     }
     else
     {
-        ATOM_PWM_SetDuty(MOTOR2_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, (-motor2), MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_P, 0, MOTOR_FREQUENCY);
+        ATOM_PWM_SetDuty(MOTOR4_N, (-motor2), MOTOR_FREQUENCY);
     }
 }
 void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4)
@@ -209,24 +209,24 @@ void MotorCtrl(sint32 motor1, sint32 motor2)
 {
     if (motor1 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
-        IfxPort_setPinLow(&MODULE_P21, 2);
+        ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY); // Motor4_P为Pin20.8
+        IfxPort_setPinLow(&MODULE_P20, 8);
     }
     else
     {
         ATOM_PWM_SetDuty(MOTOR3_P, (0 - motor1), MOTOR_FREQUENCY);
-        IfxPort_setPinHigh(&MODULE_P21, 5);
+        IfxPort_setPinHigh(&MODULE_P20, 8);
     }
 
     if (motor2 > 0)
     {
-        ATOM_PWM_SetDuty(MOTOR4_P, motor2, MOTOR_FREQUENCY);
-        IfxPort_setPinLow(&MODULE_P21, 3);
+        ATOM_PWM_SetDuty(MOTOR4_P, motor2, MOTOR_FREQUENCY); // Motor3_P为Pin21.4
+        IfxPort_setPinLow(&MODULE_P21, 4);
     }
     else
     {
         ATOM_PWM_SetDuty(MOTOR4_P, (0 - motor2), MOTOR_FREQUENCY);
-        IfxPort_setPinHigh(&MODULE_P21, 3);
+        IfxPort_setPinHigh(&MODULE_P21, 4);
     }
 }
 
@@ -295,7 +295,7 @@ void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4)
  *************************************************************************/
 void TestMotor(void)
 {
-    short duty = 1500;
+    sint32 duty = 1500;
     char txt[16];
 
     TFTSPI_CLS(u16BLUE); //清屏
