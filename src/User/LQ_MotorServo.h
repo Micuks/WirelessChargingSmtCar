@@ -19,8 +19,33 @@
  QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 #ifndef SRC_APPSW_TRICORE_USER_LQ_MOTORCONTROL_H_
 #define SRC_APPSW_TRICORE_USER_LQ_MOTORCONTROL_H_
-
+#include "IfxGtm_PinMap.h"
 #include "../../Libraries/iLLD/TC26B/Tricore/Cpu/Std/Platform_Types.h"
+
+//电机频率
+#define MOTOR_FREQUENCY    12500
+
+//电机PWM 宏定义
+#define MOTOR1_P          IfxGtm_ATOM0_6_TOUT42_P23_1_OUT
+#define MOTOR1_N          IfxGtm_ATOM0_5_TOUT40_P32_4_OUT
+
+#define MOTOR2_P          IfxGtm_ATOM0_0_TOUT53_P21_2_OUT
+#define MOTOR2_N          IfxGtm_ATOM0_4_TOUT50_P22_3_OUT
+
+
+#define MOTOR3_P          IfxGtm_ATOM0_7_TOUT64_P20_8_OUT
+#define MOTOR3_N          IfxGtm_ATOM0_3_TOUT56_P21_5_OUT
+
+
+#define MOTOR4_P          IfxGtm_ATOM0_2_TOUT55_P21_4_OUT
+#define MOTOR4_N          IfxGtm_ATOM0_1_TOUT54_P21_3_OUT
+
+
+#define ATOMSERVO1       IfxGtm_ATOM2_0_TOUT32_P33_10_OUT
+#define ATOMSERVO2       IfxGtm_ATOM2_5_TOUT35_P33_13_OUT
+
+//#define USE7843or7971   //USEDRV8701 使用龙邱不同的驱动模块，选择对应的宏定义
+#define USEDRV8701
 
 #define  Kbat       2    // 电池电压对电机占空比的影响系数
 #define  Kencoder   5    // 编码器速度对电机占空比的影响系数
@@ -31,13 +56,14 @@
 #define IN_GARAGE    1   // 入库
 #define OUT_GARAGE   0   // 出库
 
+#define Servo_Delta 150
 
-#define Servo_Delta 170           //舵机左右转动的差值，与舵机型号，拉杆和舵机臂长有关
+#define Servo_Delta 150            //舵机左右转动的差值，与舵机型号，拉杆和舵机臂长有关
 #define Servo_Center_Mid 1440      //舵机直行中值，
 #define Servo_Left_Max   (Servo_Center_Mid+Servo_Delta)      //舵机左转极限值
 #define Servo_Right_Min  (Servo_Center_Mid-Servo_Delta)      //舵机右转极限值，此值跟舵机放置方式有关，立式
 
-#define MtTargetDuty  0  //电机占空比值得最大值，实际需要减去电池电压，编码器，赛道曲率，达不到该值
+#define MtTargetDuty  4200  //电机占空比值得最大值，实际需要减去电池电压，编码器，赛道曲率，达不到该值
 
 extern sint16 ServoDuty;
 extern sint16 MotorDuty1;      // 电机驱动占空比数值
@@ -54,7 +80,6 @@ void EncInit(void);
 void TestEncoder(void);
 
 void MotorInit(void);
-void MotorCtrl1(sint32 motor1);
 void MotorCtrl(sint32 motor1, sint32 motor2);
 void MotorCtrl4w(sint32 motor1, sint32 motor2,sint32 motor3, sint32 motor4);
 void TestMotor(void);

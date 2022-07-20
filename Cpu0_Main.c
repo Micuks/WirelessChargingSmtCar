@@ -86,13 +86,13 @@ BEEPp         P33_8      龙邱TC母板上蜂鸣器接口
 推荐使用CCU6模块，STM用作系统时钟或者延时；
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 
-#include <IfxCpu.h>
-#include <IfxScuCcu.h>
-#include <IfxScuWdt.h>
-#include <IfxStm.h>
-#include <IfxStm_reg.h>
-#include <stdio.h>
+#include "LQ_ADC.h"
+#include "LQ_CCU6.h"
+#include "LQ_IIC_Gyro.h"
+#include "LQ_ImageProcess.h"
+#include "LQ_PID.h"
 #include "LQ_TFT18.h"
+#include "LQ_TFT2.h"
 #include "src/APP/LQ_ADC_test.h"
 #include "src/APP/LQ_Atom_Motor.h"
 #include "src/APP/LQ_CAMERA.h"
@@ -111,16 +111,16 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 #include "src/APP/LQ_Tim_InputCature.h"
 #include "src/APP/LQ_Tom_Servo.h"
 #include "src/APP/LQ_UART_Bluetooth.h"
-#include "src/Driver/include.h"
 #include "src/Driver/LQ_STM.h"
 #include "src/Driver/LQ_UART.h"
+#include "src/Driver/include.h"
 #include "src/User/LQ_MotorServo.h"
-#include "LQ_ImageProcess.h"
-#include "LQ_PID.h"
-#include "LQ_CCU6.h"
-#include "LQ_TFT2.h"
-#include "LQ_IIC_Gyro.h"
-#include "LQ_ADC.h"
+#include <IfxCpu.h>
+#include <IfxScuCcu.h>
+#include <IfxScuWdt.h>
+#include <IfxStm.h>
+#include <IfxStm_reg.h>
+#include <stdio.h>
 App_Cpu0 g_AppCpu0;                     // brief CPU 0 global data
 IfxCpu_mutexLock mutexCpu0InitIsOk = 1; // CPU0 初始化完成标志位
 volatile char mutexCpu0TFTIsOk = 0;     // CPU1 0占用/1释放 TFT
@@ -142,8 +142,7 @@ unsigned short val3;
  *  修改时间：2020年3月10日
  *  备    注：
  *************************************************************************/
-int core0_main(void)
-{
+int core0_main(void) {
     unsigned char cnt = 0;
     // 关闭CPU总中断
     IfxCpu_disableInterrupts();
@@ -161,8 +160,9 @@ int core0_main(void)
     TFTSPI_Init(0);       // TFT1.8初始化0:横屏  1：竖屏
     TFTSPI_CLS(u16BLACK); // 清屏
     // TFTSPI_Show_Logo(0,37);       // 显示龙邱LOGO
-    TFTSPI_P16x16Str(8, 8, (unsigned char *)"TEST", u16RED, u16BLUE); // 字符串显示
-    TFTSPI_CLS(u16BLACK);                                             // 清屏
+    TFTSPI_P16x16Str(8, 8, (unsigned char *)"TEST", u16RED,
+                     u16BLUE); // 字符串显示
+    TFTSPI_CLS(u16BLACK);      // 清屏
     // 按键初始化
     GPIO_KEY_Init();
     // LED灯所用P10.6和P10.5初始化
@@ -232,8 +232,7 @@ int core0_main(void)
     // Test_CAMERA();
     TestMotor();
 
-    while (1)
-    {
+    while (1) {
         UART_PutStr(UART0, "UART0 TEST\r\n");
         printf("UART0 printf() test cnt=%03d\r\n", cnt++);
         LED_Ctrl(LED0, RVS);
@@ -249,8 +248,7 @@ int core0_main(void)
  *  修改时间：2021年12月10日
  *  备    注：
  *************************************************************************/
-void LQ_drv_val(unsigned short *valure0, unsigned short *valure1)
-{
+void LQ_drv_val(unsigned short *valure0, unsigned short *valure1) {
     static unsigned short num0;
     static unsigned short num1;
 
