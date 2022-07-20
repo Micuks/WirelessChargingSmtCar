@@ -2099,6 +2099,13 @@ static uint8_t g_ucFlagRoundabout_flag = 0;
 //环岛元素处理，其中自行修改得参数与小车的速度，误差放大比例有关，需要同学们自己根据实际情况来修改
 void CameraCar (void)
 {
+    sprintf(txt, "R[%01d]", g_ucFlagRoundabout); // 环岛标志
+    TFTSPI_P6X8Str(0, 0, txt, u16WHITE, u16BLUE);
+    sprintf(txt, "Y[%01d]", g_ucFlagFork); // Y标志
+    TFTSPI_P6X8Str(5, 0, txt, u16WHITE, u16BLUE);
+    sprintf(txt, "T[%01d]", txt, u16WHITE, u16BLUE);
+    TFTSPI_P6X8Str(10, 0, txt, u16WHITE, u16BLUE);
+
     LED_Ctrl(LED1, RVS);     // LED闪烁 指示程序运行状态
 //    uint8_t pointY;
 
@@ -2150,35 +2157,35 @@ void CameraCar (void)
      /************************************************************************
        2021/7/19测试代码  Y形路口
        ************************************************************************/
-//     if(g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0)
-//     {
-//         RoadIsFork(UpdowmSide, ImageSide, &g_ucFlagFork, &pointY);
-//     }
-//     if(g_ucFlagFork == 1)
-//     {
-//         g_ucForkNum += 1;
-//     }
-//
-//       if(g_ucFlagFork)//遇到岔口
-//       {
-//           Target_Speed1 = 18;
-//           Target_Speed2 = 18;
-//           Servo_P = 10;
-//           // Y字处理
-//           ForkProcess(UpdowmSide, ImageSide, &g_ucFlagFork);
-//       }
+    if(g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0)
+    {
+        RoadIsFork(UpdowmSide, ImageSide, &g_ucFlagFork, &pointY);
+    }
+    if(g_ucFlagFork == 1)
+    {
+        g_ucForkNum += 1;
+    }
+
+      if(g_ucFlagFork)//遇到岔口
+      {
+          Target_Speed1 = 18;
+          Target_Speed2 = 18;
+          Servo_P = 10;
+          // Y字处理
+          ForkProcess(UpdowmSide, ImageSide, &g_ucFlagFork);
+      }
     /*************************车库识别代码***********************************/
     /*************************这部分未修改***********************************/
-//       if(g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0&& g_ucFlagFork == 0)
-//       {
-//           /* 检测车库 */
-//           RoadIsCross(ImageSide, &g_ucFlagZebra);
-//       }
-//       if(g_ucFlagZebra)
-//       {
-//           /* 车库处理 */
-//           ZebraProcess(Image_Use,1,1200);
-//       }
+      if(g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0&& g_ucFlagFork == 0)
+      {
+          /* 检测车库 */
+          RoadIsCross(ImageSide, &g_ucFlagZebra);
+      }
+      if(g_ucFlagZebra)
+      {
+          /* 车库处理 */
+          ZebraProcess(Image_Use,1,1200);
+      }
 
      /* 根据主跑行，求取舵机偏差 */
      g_sSteeringError = RoadGetSteeringError(ImageSide, ROAD_MAIN_ROW);
