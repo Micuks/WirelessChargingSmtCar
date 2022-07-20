@@ -2093,10 +2093,11 @@ void CameraCar(void)
     TFTSPI_P6X8Str(0, 0, txt, u16WHITE, u16BLUE);
     sprintf(txt, "Y[%01d]", g_ucFlagFork); // Y标志
     TFTSPI_P6X8Str(5, 0, txt, u16WHITE, u16BLUE);
-    sprintf(txt, "T[%01d]", txt, u16WHITE, u16BLUE);
+    sprintf(txt, "T[%01d]", g_ucFlagT);
     TFTSPI_P6X8Str(10, 0, txt, u16WHITE, u16BLUE);
 
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
+
     uint8_t pointY;
 
     if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0)
