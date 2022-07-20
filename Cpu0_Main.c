@@ -86,13 +86,13 @@ BEEPp         P33_8      龙邱TC母板上蜂鸣器接口
 推荐使用CCU6模块，STM用作系统时钟或者延时；
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 
-#include <IfxCpu.h>
-#include <IfxScuCcu.h>
-#include <IfxScuWdt.h>
-#include <IfxStm.h>
-#include <IfxStm_reg.h>
-#include <stdio.h>
+#include "LQ_ADC.h"
+#include "LQ_CCU6.h"
+#include "LQ_IIC_Gyro.h"
+#include "LQ_ImageProcess.h"
+#include "LQ_PID.h"
 #include "LQ_TFT18.h"
+#include "LQ_TFT2.h"
 #include "src/APP/LQ_ADC_test.h"
 #include "src/APP/LQ_Atom_Motor.h"
 #include "src/APP/LQ_CAMERA.h"
@@ -111,19 +111,19 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 #include "src/APP/LQ_Tim_InputCature.h"
 #include "src/APP/LQ_Tom_Servo.h"
 #include "src/APP/LQ_UART_Bluetooth.h"
-#include "src/Driver/include.h"
 #include "src/Driver/LQ_STM.h"
 #include "src/Driver/LQ_UART.h"
+#include "src/Driver/include.h"
 #include "src/User/LQ_MotorServo.h"
-#include "LQ_ImageProcess.h"
-#include "LQ_PID.h"
-#include "LQ_CCU6.h"
-#include "LQ_TFT2.h"
-#include "LQ_IIC_Gyro.h"
-#include "LQ_ADC.h"
-App_Cpu0 g_AppCpu0;						// brief CPU 0 global data
+#include <IfxCpu.h>
+#include <IfxScuCcu.h>
+#include <IfxScuWdt.h>
+#include <IfxStm.h>
+#include <IfxStm_reg.h>
+#include <stdio.h>
+App_Cpu0 g_AppCpu0;                     // brief CPU 0 global data
 IfxCpu_mutexLock mutexCpu0InitIsOk = 1; // CPU0 初始化完成标志位
-volatile char mutexCpu0TFTIsOk = 0;		// CPU1 0占用/1释放 TFT
+volatile char mutexCpu0TFTIsOk = 0;     // CPU1 0占用/1释放 TFT
 
 void LQ_drv_val(unsigned short *valure0, unsigned short *valure1);
 // extern pid_param_t BalDirgyro_PID;
@@ -147,97 +147,97 @@ extern unsigned char Pw_flag;
  *  修改时间：2020年3月10日
  *  备    注：
  *************************************************************************/
-int core0_main(void)
-{
-	// 关闭CPU总中断
-	IfxCpu_disableInterrupts();
+int core0_main(void) {
+    // 关闭CPU总中断
+    IfxCpu_disableInterrupts();
 
-	// 关闭看门狗，如果不设置看门狗喂狗需要关闭
-	IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
-	IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
+    // 关闭看门狗，如果不设置看门狗喂狗需要关闭
+    IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
+    IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
 
-	// 读取总线频率
-	g_AppCpu0.info.pllFreq = IfxScuCcu_getPllFrequency();
-	g_AppCpu0.info.cpuFreq = IfxScuCcu_getCpuFrequency(IfxCpu_getCoreIndex());
-	g_AppCpu0.info.sysFreq = IfxScuCcu_getSpbFrequency();
-	g_AppCpu0.info.stmFreq = IfxStm_getFrequency(&MODULE_STM0);
+    // 读取总线频率
+    g_AppCpu0.info.pllFreq = IfxScuCcu_getPllFrequency();
+    g_AppCpu0.info.cpuFreq = IfxScuCcu_getCpuFrequency(IfxCpu_getCoreIndex());
+    g_AppCpu0.info.sysFreq = IfxScuCcu_getSpbFrequency();
+    g_AppCpu0.info.stmFreq = IfxStm_getFrequency(&MODULE_STM0);
 
-	TFTSPI_Init(0);																  // TFT1.8初始化0:横屏  1：竖屏
-	TFTSPI_CLS(u16BLACK);														  // 清屏
-	// TFTSPI_Show_Logo(0, 37);													  // 显示龙邱LOGO
-	TFTSPI_P16x16Str(0, 0, (unsigned char *)"测试", u16RED, u16BLUE); // 字符串显示
-	TFTSPI_CLS(u16BLACK);														  // 清屏
-	// 按键初始化
-	GPIO_KEY_Init();
-	// LED灯所用P10.6和P10.5初始化
-	GPIO_LED_Init();
-	// 串口P14.0管脚输出,P14.1输入，波特率115200
-	UART_InitConfig(UART0_RX_P14_1, UART0_TX_P14_0, 115200);
-	// 开启CPU总中断
+    TFTSPI_Init(0);       // TFT1.8初始化0:横屏  1：竖屏
+    TFTSPI_CLS(u16BLACK); // 清屏
+    // TFTSPI_Show_Logo(0, 37);
+    // // 显示龙邱LOGO
+    TFTSPI_P16x16Str(0, 0, (unsigned char *)"测试", u16RED,
+                     u16BLUE); // 字符串显示
+    TFTSPI_CLS(u16BLACK);      // 清屏
+    // 按键初始化
+    GPIO_KEY_Init();
+    // LED灯所用P10.6和P10.5初始化
+    GPIO_LED_Init();
+    // 串口P14.0管脚输出,P14.1输入，波特率115200
+    UART_InitConfig(UART0_RX_P14_1, UART0_TX_P14_0, 115200);
+    // 开启CPU总中断
 
-	IfxCpu_enableInterrupts();
-	// 通知CPU1，CPU0初始化完成
-	IfxCpu_releaseMutex(&mutexCpu0InitIsOk);
-	// 切记CPU0,CPU1...不可以同时开启屏幕显示，否则冲突不显示
-	mutexCpu0TFTIsOk = 0; // CPU1： 0占用/1释放 TFT
-						  //位置
+    IfxCpu_enableInterrupts();
+    // 通知CPU1，CPU0初始化完成
+    IfxCpu_releaseMutex(&mutexCpu0InitIsOk);
+    // 切记CPU0,CPU1...不可以同时开启屏幕显示，否则冲突不显示
+    mutexCpu0TFTIsOk = 0; // CPU1： 0占用/1释放 TFT
+                          //位置
 
-	ServoInit(); // 舵机初始化
-	MotorInit(); // 电机初始化
-	EncInit();	 // 编码器初始化
+    ServoInit(); // 舵机初始化
+    MotorInit(); // 电机初始化
+    EncInit();   // 编码器初始化
 
-	// PID参数设置
-	PidInit(&LSpeed_PID);
-	PidInit(&RSpeed_PID);
-	LSpeed_PID.kp = 250;
-	LSpeed_PID.ki = 1.2;
-	LSpeed_PID.kd = 0.5;
-	RSpeed_PID.kp = 250;
-	RSpeed_PID.ki = 1.2;
-	RSpeed_PID.kd = 0.5;
+    // PID参数设置
+    PidInit(&LSpeed_PID);
+    PidInit(&RSpeed_PID);
+    LSpeed_PID.kp = 250;
+    LSpeed_PID.ki = 1.2;
+    LSpeed_PID.kd = 0.5;
+    RSpeed_PID.kp = 250;
+    RSpeed_PID.ki = 1.2;
+    RSpeed_PID.kd = 0.5;
 
-	/* 摄像头初始化 */
-	CAMERA_Init(50);
+    /* 摄像头初始化 */
+    CAMERA_Init(50);
 
-	ADC_InitConfig(ADC0, 80000); // ADC采集初始化
-	ADC_InitConfig(ADC1, 80000);
-	ADC_InitConfig(ADC2, 80000);
-	ADC_InitConfig(ADC3, 80000);
+    ADC_InitConfig(ADC0, 80000); // ADC采集初始化
+    ADC_InitConfig(ADC1, 80000);
+    ADC_InitConfig(ADC2, 80000);
+    ADC_InitConfig(ADC3, 80000);
 
-	//开启CCU6定时器
-	CCU6_InitConfig(CCU60, CCU6_Channel1, 5000); // 5ms进入一次中断
+    //开启CCU6定时器
+    CCU6_InitConfig(CCU60, CCU6_Channel1, 5000); // 5ms进入一次中断
 
-	char txt[32];
-	while (1) //主循环
-	{
-		//数据滤波
-		LQ_drv_val(&val0, &val1);
-		// 屏幕信息显示
-		sprintf(txt, "FSIG: %04d", val0); //前信号检测板
-		TFTSPI_P6X8Str(0, 5, txt, u16WHITE, u16BLUE);
-		sprintf(txt, "RSIG: %04d", val1); //后信号检测板
-		TFTSPI_P6X8Str(0, 6, txt, u16WHITE, u16BLUE);
+    char txt[32];
+    while (1) //主循环
+    {
+        //数据滤波
+        LQ_drv_val(&val0, &val1);
+        // 屏幕信息显示
+        sprintf(txt, "FSIG: %04d", val0); //前信号检测板
+        TFTSPI_P6X8Str(0, 5, txt, u16WHITE, u16BLUE);
+        sprintf(txt, "RSIG: %04d", val1); //后信号检测板
+        TFTSPI_P6X8Str(0, 6, txt, u16WHITE, u16BLUE);
 
-		sprintf(txt, "ADC2: %04d", val2); //电池电量
-		TFTSPI_P6X8Str(0, 2, txt, u16WHITE, u16BLACK);
-		sprintf(txt, "ADC3: %04d", val3); //充电速度
-		TFTSPI_P6X8Str(0, 3, txt, u16WHITE, u16BLACK);
+        sprintf(txt, "ADC2: %04d", val2); //电池电量
+        TFTSPI_P6X8Str(0, 2, txt, u16WHITE, u16BLACK);
+        sprintf(txt, "ADC3: %04d", val3); //充电速度
+        TFTSPI_P6X8Str(0, 3, txt, u16WHITE, u16BLACK);
 
-		// TFTSPI_P8X16Str(bigger)
+        // TFTSPI_P8X16Str(bigger)
 
-		sprintf(txt, "LENC: %04d", ECPULSE1); //左轮编码器
-		TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
-		sprintf(txt, "RENC: %04d", ECPULSE2); //右轮编码器
-		TFTSPI_P6X8Str(0, 14, txt, u16RED, u16BLUE);
+        sprintf(txt, "LENC: %04d", ECPULSE1); //左轮编码器
+        TFTSPI_P6X8Str(0, 13, txt, u16RED, u16BLUE);
+        sprintf(txt, "RENC: %04d", ECPULSE2); //右轮编码器
+        TFTSPI_P6X8Str(0, 14, txt, u16RED, u16BLUE);
 
-		sprintf(txt, "LPWM: %04d", MotorDuty1); //左轮PWM值
-		TFTSPI_P6X8Str(12, 13, txt, u16RED, u16BLUE);
-		sprintf(txt, "RPWM: %04d", MotorDuty2); //右轮PWM值
-		TFTSPI_P6X8Str(12, 14, txt, u16RED, u16BLUE);
+        sprintf(txt, "LPWM: %04d", MotorDuty1); //左轮PWM值
+        TFTSPI_P6X8Str(12, 13, txt, u16RED, u16BLUE);
+        sprintf(txt, "RPWM: %04d", MotorDuty2); //右轮PWM值
+        TFTSPI_P6X8Str(12, 14, txt, u16RED, u16BLUE);
 
-
-		TFT_Show_Camera_Info();
-	}
+        TFT_Show_Camera_Info();
+    }
 }
 
 /*************************************************************************
@@ -248,14 +248,13 @@ int core0_main(void)
  *  修改时间：2021年12月10日
  *  备    注：
  *************************************************************************/
-void LQ_drv_val(unsigned short *valure0, unsigned short *valure1)
-{
-	static unsigned short num0;
-	static unsigned short num1;
+void LQ_drv_val(unsigned short *valure0, unsigned short *valure1) {
+    static unsigned short num0;
+    static unsigned short num1;
 
-	num0 = num0 * 6 / 10 + *valure0 * 4 / 10;
-	num1 = num1 * 6 / 10 + *valure1 * 4 / 10;
+    num0 = num0 * 6 / 10 + *valure0 * 4 / 10;
+    num1 = num1 * 6 / 10 + *valure1 * 4 / 10;
 
-	*valure0 = num0;
-	*valure1 = num1;
+    *valure0 = num0;
+    *valure1 = num1;
 }

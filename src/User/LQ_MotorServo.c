@@ -21,7 +21,6 @@
 #include "LQ_MotorServo.h"
 
 #include <IfxCpu.h>
-#include <IfxGtm_PinMap.h>
 #include <Platform_Types.h>
 #include <stdio.h>
 
@@ -42,27 +41,7 @@ sint16 MotorDuty2 = 500; // 电机驱动占空比数值
 sint32 NowTime = 0;
 uint16 BatVolt = 0; // 电池电压采集
 
-//电机频率
-#define MOTOR_FREQUENCY 12500
-
-//电机PWM 宏定义
-#define MOTOR1_P IfxGtm_ATOM0_6_TOUT42_P23_1_OUT
-#define MOTOR1_N IfxGtm_ATOM0_5_TOUT40_P32_4_OUT
-
-#define MOTOR2_P IfxGtm_ATOM0_0_TOUT53_P21_2_OUT
-#define MOTOR2_N IfxGtm_ATOM0_4_TOUT50_P22_3_OUT
-
-#define MOTOR3_P IfxGtm_ATOM0_7_TOUT64_P20_8_OUT
-#define MOTOR3_N IfxGtm_ATOM0_3_TOUT56_P21_5_OUT
-
-#define MOTOR4_P IfxGtm_ATOM0_2_TOUT55_P21_4_OUT
-#define MOTOR4_N IfxGtm_ATOM0_1_TOUT54_P21_3_OUT
-
-#define ATOMSERVO1 IfxGtm_ATOM2_0_TOUT32_P33_10_OUT
-#define ATOMSERVO2 IfxGtm_ATOM2_5_TOUT35_P33_13_OUT
-
-//#define USE7843or7971   //USEDRV8701 使用龙邱不同的驱动模块，选择对应的宏定义
-#define USEDRV8701
+#define USE7843or7971
 
 /*************************************************************************
  *  函数名称：void MotorInit(void)
@@ -72,8 +51,7 @@ uint16 BatVolt = 0; // 电池电压采集
  *  修改时间：2020年4月1日
  *  备    注：驱动2个电机
  *************************************************************************/
-void MotorInit(void)
-{
+void MotorInit(void) {
     ATOM_PWM_InitConfig(MOTOR1_P, 0, MOTOR_FREQUENCY);
     ATOM_PWM_InitConfig(MOTOR2_P, 0, MOTOR_FREQUENCY);
     ATOM_PWM_InitConfig(MOTOR3_P, 0, MOTOR_FREQUENCY);
@@ -93,10 +71,9 @@ void MotorInit(void)
  *  修改时间：2020年4月1日
  *  备    注：驱动2个编码器
  *************************************************************************/
-void EncInit(void)
-{
+void EncInit(void) {
+    ENC_InitConfig(ENC2_InPut_P33_7, ENC2_Dir_P33_6);
     ENC_InitConfig(ENC4_InPut_P02_8, ENC4_Dir_P33_5);
-    ENC_InitConfig(ENC6_InPut_P20_3, ENC6_Dir_P20_0);
 }
 
 /*************************************************************************
@@ -109,168 +86,117 @@ void EncInit(void)
  *  备    注：驱动2个舵机，普通四轮只需要一个舵机即可
  *************************************************************************/
 #ifdef USE7843or7971
-void MotorCtrl1(sint32 motor1)
-{
-    if (motor1 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, (-motor1), MOTOR_FREQUENCY);
-    }
-}
-void MotorCtrl(sint32 motor1, sint32 motor2)
-{
-    if (motor1 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, (-motor1), MOTOR_FREQUENCY);
-    }
-
-    if (motor2 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR2_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, (-motor2), MOTOR_FREQUENCY);
-    }
-}
-void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4)
-{
-    if (motor1 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR1_N, (-motor1), MOTOR_FREQUENCY);
-    }
-
-    if (motor2 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR2_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR2_N, (-motor2), MOTOR_FREQUENCY);
-    }
-    if (motor3 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR3_P, motor3, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR3_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR3_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR3_N, (-motor3), MOTOR_FREQUENCY);
-    }
-
-    if (motor4 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR4_P, motor4, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR4_N, 0, MOTOR_FREQUENCY);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR4_P, 0, MOTOR_FREQUENCY);
-        ATOM_PWM_SetDuty(MOTOR4_N, (-motor4), MOTOR_FREQUENCY);
-    }
-}
-#else // USEDRV8701
-void MotorCtrl1(sint32 motor1)
-{
-    if (motor1 > 0)
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
-        IfxPort_setPinLow(&MODULE_P32, 4);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR1_P, (0 - motor1), MOTOR_FREQUENCY);
-        IfxPort_setPinHigh(&MODULE_P32, 4);
-    }
-}
-void MotorCtrl(sint32 motor1, sint32 motor2)
-{
-    if (motor1 < 0)
-    {
+#define rvsMotor
+void MotorCtrl(sint32 motor1, sint32 motor2) {
+#ifdef rvsMotor
+    motor1 = -motor1;
+    motor2 = -motor2;
+#endif
+    if (motor1 > 0) {
         ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
-        IfxPort_setPinLow(&MODULE_P21, 2);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR3_P, (0 - motor1), MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P21, 5);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR3_P, 10000 + motor1, MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P21, 5);
     }
 
-    if (motor2 > 0)
-    {
+    if (motor2 > 0) {
         ATOM_PWM_SetDuty(MOTOR4_P, motor2, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P21, 3);
-    }
-    else
-    {
-        ATOM_PWM_SetDuty(MOTOR4_P, (0 - motor2), MOTOR_FREQUENCY);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR4_P, 10000 + motor2, MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P21, 3);
     }
 }
-
-void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4)
-{
-    if (motor1 > 0)
-    {
+void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4) {
+    if (motor1 > 0) {
         ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P32, 4);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR1_P, 10000 + motor1, MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P32, 4);
     }
-    else
-    {
+
+    if (motor2 > 0) {
+        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P22, 3);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR2_P, 10000 + motor2, MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P22, 3);
+    }
+
+    if (motor3 > 0) {
+        ATOM_PWM_SetDuty(MOTOR3_P, motor3, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P21, 5);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR3_P, 10000 + motor3, MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P21, 5);
+    }
+
+    if (motor4 > 0) {
+        ATOM_PWM_SetDuty(MOTOR4_P, motor4, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P21, 3);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR4_P, 10000 + motor4, MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P21, 3);
+    }
+}
+#else // USEDRV8701
+void MotorCtrl1(sint32 motor1) {
+    if (motor1 > 0) {
+        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P32, 4);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR1_P, (0 - motor1), MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P32, 4);
+    }
+}
+void MotorCtrl(sint32 motor1, sint32 motor2) {
+    if (motor1 > 0) {
+        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P32, 4);
+    } else {
         ATOM_PWM_SetDuty(MOTOR1_P, (0 - motor1), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P32, 4);
     }
 
-    if (motor2 > 0)
-    {
+    if (motor2 > 0) {
         ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P22, 3);
-    }
-    else
-    {
+    } else {
         ATOM_PWM_SetDuty(MOTOR2_P, (0 - motor2), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P22, 3);
     }
-    if (motor3 > 0)
-    {
+}
+
+void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4) {
+    if (motor1 > 0) {
+        ATOM_PWM_SetDuty(MOTOR1_P, motor1, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P32, 4);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR1_P, (0 - motor1), MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P32, 4);
+    }
+
+    if (motor2 > 0) {
+        ATOM_PWM_SetDuty(MOTOR2_P, motor2, MOTOR_FREQUENCY);
+        IfxPort_setPinLow(&MODULE_P22, 3);
+    } else {
+        ATOM_PWM_SetDuty(MOTOR2_P, (0 - motor2), MOTOR_FREQUENCY);
+        IfxPort_setPinHigh(&MODULE_P22, 3);
+    }
+    if (motor3 > 0) {
         ATOM_PWM_SetDuty(MOTOR3_P, motor3, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P21, 2);
-    }
-    else
-    {
+    } else {
         ATOM_PWM_SetDuty(MOTOR3_P, (0 - motor3), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P21, 5);
     }
 
-    if (motor4 > 0)
-    {
+    if (motor4 > 0) {
         ATOM_PWM_SetDuty(MOTOR4_P, motor4, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P21, 3);
-    }
-    else
-    {
+    } else {
         ATOM_PWM_SetDuty(MOTOR4_P, (0 - motor4), MOTOR_FREQUENCY);
         IfxPort_setPinHigh(&MODULE_P21, 3);
     }
@@ -293,8 +219,7 @@ void MotorCtrl4w(sint32 motor1, sint32 motor2, sint32 motor3, sint32 motor4)
  5.按键K0/K1确定电机转动速度及方向；
  6.如果出现疯转，按下K2键返回低速模式，或者直接关闭驱动板电源！
  *************************************************************************/
-void TestMotor(void)
-{
+void TestMotor(void) {
     short duty = 1500;
     char txt[16];
 
@@ -302,24 +227,30 @@ void TestMotor(void)
     TFTSPI_P8X16Str(2, 0, "LQ Motor Test", u16RED, u16BLUE);
     MotorInit();
 
-    while (1)
-    {
+    while (1) {
         if (KEY_Read(KEY0) == 0) //按下KEY0键，占空比减小
         {
             if (duty > -ATOM_PWM_MAX)
-                duty -= 500;
+                duty -= 100;
         }
         if (KEY_Read(KEY2) == 0) //按下KEY2键，占空比加大
         {
-            duty = -3500;
+            if (duty < ATOM_PWM_MAX) //满占空比为12500
+                duty += 100;
         }
         if (KEY_Read(KEY1) == 0) //按下KEY1键，占空比中值
         {
-            duty = 3500;
+            if (duty == 3500) {
+                duty = -3500;
+            } else if (duty == -3500) {
+                duty = 3500;
+            } else {
+                duty = 3500;
+            }
         }
 
-        //MotorCtrl(duty, duty);
-        MotorCtrl4w(duty,duty,duty,duty);
+        MotorCtrl(duty, duty);
+        // MotorCtrl4w(duty, duty, duty, duty);
         sprintf(txt, "PWM: %05d;", duty);
         TFTSPI_P8X16Str(0, 5, txt, u16WHITE, u16BLACK); //字符串显示
         UART_PutStr(UART0, txt);
@@ -336,10 +267,12 @@ void TestMotor(void)
  *  修改时间：2020年4月1日
  *  备    注：驱动2个舵机
  *************************************************************************/
-void ServoInit(void)
-{
-    ATOM_PWM_InitConfig(ATOMSERVO1, Servo_Center_Mid, 50);  //舵机频率为100HZ，初始值为1.5ms中值
-    ATOM_PWM_InitConfig(ATOMSERVO2, Servo_Center_Mid, 100); //舵机理论范围为：0.5ms--2.5ms，大多舵机实际比这个范围小
+void ServoInit(void) {
+    ATOM_PWM_InitConfig(ATOMSERVO1, Servo_Center_Mid,
+                        100); //舵机频率为100HZ，初始值为1.5ms中值
+    ATOM_PWM_InitConfig(
+        ATOMSERVO2, Servo_Center_Mid,
+        100); //舵机理论范围为：0.5ms--2.5ms，大多舵机实际比这个范围小
 }
 
 /*************************************************************************
@@ -350,15 +283,17 @@ void ServoInit(void)
  *  修改时间：2020年4月1日
  *  备    注：驱动2个舵机，普通四轮只需要一个舵机即可
  *************************************************************************/
-void ServoCtrl(uint32 duty)
-{
+void ServoCtrl(uint32 duty) {
     if (duty >= Servo_Left_Max) //限制幅值
         duty = Servo_Left_Max;
     else if (duty <= Servo_Right_Min) //限制幅值
         duty = Servo_Right_Min;
 
-    ATOM_PWM_InitConfig(ATOMSERVO1, duty, 50);  //舵机频率为100HZ，初始值为1.5ms中值
-    ATOM_PWM_InitConfig(ATOMSERVO2, duty, 100); //舵机理论范围为：0.5ms--2.5ms，大多舵机实际比这个范围小
+    ATOM_PWM_InitConfig(ATOMSERVO1, duty,
+                        100); //舵机频率为100HZ，初始值为1.5ms中值
+    ATOM_PWM_InitConfig(
+        ATOMSERVO2, duty,
+        100); //舵机理论范围为：0.5ms--2.5ms，大多舵机实际比这个范围小
 }
 
 /*************************************************************************
@@ -377,8 +312,7 @@ void ServoCtrl(uint32 duty)
  5.舵机受控后用手轻转，舵机会吱吱响，对抗转动，此时可以装上舵盘；
  6.按键K0/K1确定舵机的左右转动极限，并记下来，作为后续限幅防止舵机堵转烧毁！
  *************************************************************************/
-void TestServo(void)
-{
+void TestServo(void) {
     char txt[16] = "X:";
     signed short duty = Servo_Center_Mid;
 
@@ -386,29 +320,23 @@ void TestServo(void)
     TFTSPI_P8X16Str(2, 0, "LQ Servo Test", u16RED, u16BLUE);
     ServoInit();
     ServoCtrl(Servo_Center_Mid); //中值
-    while (1)
-    {
-        if (!KEY_Read(KEY0))
-        {
-            if (duty > 10) //防止duty超
-            {
-                duty -= 10;
-            }
+    while (1) {
+        if (!KEY_Read(KEY0)) {
+            duty -= 10;
         }
-        if (!KEY_Read(KEY1))
-        {
+        if (!KEY_Read(KEY1)) {
             duty = Servo_Center_Mid;
         }
-        if (!KEY_Read(KEY2))
-        {
+        if (!KEY_Read(KEY2)) {
             duty += 10;
         }
 
         ATOM_PWM_SetDuty(ATOMSERVO2, duty, 100);
-        ATOM_PWM_SetDuty(ATOMSERVO1, duty, 50);
+        ATOM_PWM_SetDuty(ATOMSERVO1, duty, 100);
         sprintf(txt, "Servo duty:%04d ", duty);
-        TFTSPI_P8X16Str(1, 2, txt, u16BLACK, u16GREEN); //显示出库实际脉冲数，以便灵活调整
-        LED_Ctrl(LEDALL, RVS);                          //四个LED同时闪烁;
+        TFTSPI_P8X16Str(1, 2, txt, u16BLACK,
+                        u16GREEN); //显示出库实际脉冲数，以便灵活调整
+        LED_Ctrl(LEDALL, RVS); //四个LED同时闪烁;
         delayms(100);
     }
 }
@@ -421,18 +349,18 @@ void TestServo(void)
  *  修改时间：2020年4月10日
  *  备    注：
  *************************************************************************/
-void TestEncoder(void)
-{
+void TestEncoder(void) {
     char txt[32];
 
     TFTSPI_CLS(u16BLUE);                                       //蓝色屏幕
     TFTSPI_P8X16Str(0, 0, "Test Encoder", u16WHITE, u16BLACK); //字符串显示
     EncInit();
-    while (1)
-    {
+    while (1) {
         /* 获取编码器值 */
-        ECPULSE1 = ENC_GetCounter(ENC2_InPut_P33_7); //左电机 母板上编码器1，小车前进为负值
-        ECPULSE2 = ENC_GetCounter(ENC4_InPut_P02_8); //右电机 母板上编码器2，小车前进为正值
+        ECPULSE1 = ENC_GetCounter(
+            ENC2_InPut_P33_7); //左电机 母板上编码器1，小车前进为负值
+        ECPULSE2 = ENC_GetCounter(
+            ENC4_InPut_P02_8); //右电机 母板上编码器2，小车前进为正值
 
         sprintf(txt, "Enc1: %05d;", ECPULSE1);
         TFTSPI_P8X16Str(0, 3, txt, u16WHITE, u16BLACK); //字符串显示
@@ -452,8 +380,7 @@ void TestEncoder(void)
  *  修改时间：2020年11月18日
  *  备    注：
  *************************************************************************/
-uint8 SetCircleNum(void)
-{
+uint8 SetCircleNum(void) {
     char txt[16] = " ";
     uint8 num = 1;
 
@@ -464,15 +391,11 @@ uint8 SetCircleNum(void)
     TFTSPI_P8X16Str(2, 5, "K0 num -", u16RED, u16BLUE);
     TFTSPI_P8X16Str(2, 7, "Ring num:  ", u16RED, u16BLUE);
 
-    while (KEY_Read(KEY1))
-    {
-        if (KEY_Read(KEY2) == 0)
-        {
+    while (KEY_Read(KEY1)) {
+        if (KEY_Read(KEY2) == 0) {
             if (num < 10)
                 num++;
-        }
-        else if (KEY_Read(KEY0) == 0)
-        {
+        } else if (KEY_Read(KEY0) == 0) {
             if (num > 0)
                 num--;
         }
@@ -505,7 +428,8 @@ void OutInGarageTft(uint8 inout, uint8 lr) // 测试用，有屏幕显示，不要冲突
     {
         if (inout) // 1右入库
         {
-            NowTime = (STM_GetNowUs(STM0) - NowTime) / 1000; // 获取STM0 当前时间，得到毫秒
+            NowTime = (STM_GetNowUs(STM0) - NowTime) /
+                      1000; // 获取STM0 当前时间，得到毫秒
             // 2020年新加出库元素，此处为盲走入库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid);  // 回中倒车
@@ -514,90 +438,105 @@ void OutInGarageTft(uint8 inout, uint8 lr) // 测试用，有屏幕显示，不要冲突
             {
                 // 右电机 母板上编码器2，小车前进为正值，并累加
                 sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
 
             ps = RAllPulse;
-            ServoCtrl(Servo_Right_Min);   // 舵机向右打死为出库做准备
-            MotorCtrl(-3000, -2000);      // 右后倒车，左轮快，右轮慢，
-            while (RAllPulse > ps - 2000) // 从停车位出库，大约要512编码器2000个脉冲，龙邱512带方向编码器1米5790个脉冲
+            ServoCtrl(Servo_Right_Min); // 舵机向右打死为出库做准备
+            MotorCtrl(-3000, -2000); // 右后倒车，左轮快，右轮慢，
+            while (
+                RAllPulse >
+                ps -
+                    2000) // 从停车位出库，大约要512编码器2000个脉冲，龙邱512带方向编码器1米5790个脉冲
             {
                 // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
                 sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 回中倒车
             MotorCtrl(-2500, -2500);     // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 800) // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
+            while (RAllPulse >
+                   ps - 800) // 右电机
+                             // 母板上编码器1，小车后退为正值，并累加到出库为止
             {
                 // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
                 sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
             sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
 
             IfxCpu_disableInterrupts(); // 关闭所有中断
             MotorCtrl(3000, 3000);
-            delayms(300);    // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            delayms(300); // 电机反转刹车，防止滑出赛道，时间根据速度调整
             MotorCtrl(0, 0); // 停车
 
             TFTSPI_CLS(u16RED); // 清屏
-            sprintf(txt, "Time:%d.%03ds", (sint16)(NowTime / 1000), (sint16)(NowTime % 1000));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE);           // 显示出库实际脉冲数，以便灵活调整
-            TFTSPI_P8X16Str(2, 2, "!!WellDone!!", u16WHITE, u16RED); // 入库完毕，永久停车
+            sprintf(txt, "Time:%d.%03ds", (sint16)(NowTime / 1000),
+                    (sint16)(NowTime % 1000));
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 2, "!!WellDone!!", u16WHITE,
+                            u16RED); // 入库完毕，永久停车
             while (1)
                 ; // 入库完毕，永久停车
-        }
-        else // 0右出库
+        } else    // 0右出库
         {
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 直行大约10cm
             MotorCtrl(2500, 2500);       //
-            while (RAllPulse < ps + 600)
-            {
+            while (RAllPulse < ps + 600) {
                 // 右电机 母板上编码器2，小车前进为正值，并累加到出库为止
                 sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Right_Min); // 舵机向右打死为出库做准备
             MotorCtrl(3500, 3000);      // 右转，左轮快，右轮慢，
-            while (RAllPulse < ps + 1200)
-            {
+            while (RAllPulse < ps + 1200) {
                 // 右电机 母板上编码器2，小车前进为正值，并累加到出库为止
                 sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
             LED_Ctrl(LED3, OFF); // LED闪烁 指示程序运行状态
             sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
 
             // MotorCtrl(-2000, -2000);
-            // delayms(200);               // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            // delayms(200);               //
+            // 电机反转刹车，防止滑出赛道，时间根据速度调整
             // ServoCtrl(Servo_Center_Mid);// 回中
             // MotorCtrl(0, 0);            // 停车
             // while(1);                   // 测试用，正常跑车需要删除该句
         }
-    }
-    else // 0：左出入库；
+    } else // 0：左出入库；
     {
         if (inout) // 1左入库
         {
-            NowTime = (STM_GetNowUs(STM0) - NowTime) / 1000; // 获取STM0 当前时间，得到毫秒
+            NowTime = (STM_GetNowUs(STM0) - NowTime) /
+                      1000; // 获取STM0 当前时间，得到毫秒
             // 2020年新加出库元素，此处为盲走入库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 回中倒车
             MotorCtrl(-2000, -2000);     // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 600) // 右电机 母板上编码器1，小车后退为正值，并累加到为止
+            while (
+                RAllPulse >
+                ps - 600) // 右电机 母板上编码器1，小车后退为正值，并累加到为止
             {
                 delayms(10);
             }
@@ -605,68 +544,73 @@ void OutInGarageTft(uint8 inout, uint8 lr) // 测试用，有屏幕显示，不要冲突
             ps = RAllPulse;
             ServoCtrl(Servo_Left_Max); // 舵机向右打死为出库做准备
             MotorCtrl(-2500, -2500);   // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 2800)
-            {
+            while (RAllPulse > ps - 2800) {
                 // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
                 sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 回中倒车
             MotorCtrl(-2500, -2500);     // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 1500)
-            {
+            while (RAllPulse > ps - 1500) {
                 // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
                 sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
             sprintf(txt, "Enc1:%04d ", (sint16)(RAllPulse - ps));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
 
             IfxCpu_disableInterrupts(); // 关闭所有中断
             MotorCtrl(3000, 3000);
-            delayms(300);    // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            delayms(300); // 电机反转刹车，防止滑出赛道，时间根据速度调整
             MotorCtrl(0, 0); // 停车
 
             TFTSPI_CLS(u16RED); // 清屏
-            sprintf(txt, "Time:%d.%03ds", (sint16)(NowTime / 1000), (sint16)(NowTime % 1000));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE);           // 显示出库实际脉冲数，以便灵活调整
-            TFTSPI_P8X16Str(2, 2, "!!WellDone!!", u16WHITE, u16RED); // 入库完毕，永久停车
+            sprintf(txt, "Time:%d.%03ds", (sint16)(NowTime / 1000),
+                    (sint16)(NowTime % 1000));
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 2, "!!WellDone!!", u16WHITE,
+                            u16RED); // 入库完毕，永久停车
             while (1)
                 ; // 入库完毕，永久停车
-        }
-        else // 0左出库
+        } else    // 0左出库
         {
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 直行大约10cm
             MotorCtrl(2500, 2500);       //
-            while (RAllPulse < ps + 600)
-            {
+            while (RAllPulse < ps + 600) {
                 // 右电机 母板上编码器2，小车前进为正值，并累加到出库为止
                 sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Left_Max); // 舵机向左打死为出库做准备
             MotorCtrl(3000, 3500);     // 左转，右轮快，左轮慢，
-            while (RAllPulse < ps + 1800)
-            {
+            while (RAllPulse < ps + 1800) {
                 // 右电机 母板上编码器2，小车前进为正值，并累加到出库为止
                 sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-                TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+                TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                                u16BLUE); // 显示出库实际脉冲数，以便灵活调整
                 delayms(10);
             }
             LED_Ctrl(LED3, OFF); // LED闪烁 指示程序运行状态
             sprintf(txt, "Enc2:%04d ", (sint16)(RAllPulse - ps));
-            TFTSPI_P8X16Str(2, 4, txt, u16BLACK, u16BLUE); // 显示出库实际脉冲数，以便灵活调整
+            TFTSPI_P8X16Str(2, 4, txt, u16BLACK,
+                            u16BLUE); // 显示出库实际脉冲数，以便灵活调整
             // MotorCtrl(-2000, -2000);
-            // delayms(100);               // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            // delayms(100);               //
+            // 电机反转刹车，防止滑出赛道，时间根据速度调整
             // ServoCtrl(Servo_Center_Mid);// 回中
             // MotorCtrl(0, 0);            // 停车
             // while(1);                   // 测试用，正常跑车需要删除该句
@@ -675,15 +619,15 @@ void OutInGarageTft(uint8 inout, uint8 lr) // 测试用，有屏幕显示，不要冲突
     // 切记CPU0,CPU1...不可以同时开启屏幕显示，否则冲突不显示
     mutexCpu0TFTIsOk = 1; // CPU1： 0占用/1释放 TFT
 }
-void OutInGarage(uint8 inout, uint8 lr)
-{
+void OutInGarage(uint8 inout, uint8 lr) {
     sint32 ps = 0;
 
     if (lr) // 1右出入库
     {
         if (inout) // 1右入库
         {
-            NowTime = (STM_GetNowUs(STM0) - NowTime) / 1000; // 获取STM0 当前时间，得到毫秒
+            NowTime = (STM_GetNowUs(STM0) - NowTime) /
+                      1000; // 获取STM0 当前时间，得到毫秒
             // 2020年新加出库元素，此处为盲走入库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid);  // 回中倒车
@@ -696,51 +640,53 @@ void OutInGarage(uint8 inout, uint8 lr)
             delayms(300);
 
             ps = RAllPulse;
-            ServoCtrl(Servo_Right_Min);   // 舵机向右打死为出库做准备
-            MotorCtrl(-3000, -2000);      // 右后倒车，左轮快，右轮慢，
-            while (RAllPulse > ps - 2000) // 从停车位出库，大约要512编码器2000个脉冲，龙邱512带方向编码器1米5790个脉冲
-            {                             // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
+            ServoCtrl(Servo_Right_Min); // 舵机向右打死为出库做准备
+            MotorCtrl(-3000, -2000); // 右后倒车，左轮快，右轮慢，
+            while (
+                RAllPulse >
+                ps -
+                    2000) // 从停车位出库，大约要512编码器2000个脉冲，龙邱512带方向编码器1米5790个脉冲
+            { // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
                 delayms(10);
             }
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 回中倒车
             MotorCtrl(-2500, -2500);     // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 800) // 右电机 母板上编码器1，小车后退为正值，并累加到出库为止
+            while (RAllPulse >
+                   ps - 800) // 右电机
+                             // 母板上编码器1，小车后退为正值，并累加到出库为止
             {
                 delayms(10);
             }
             IfxCpu_disableInterrupts(); // 关闭所有中断
             MotorCtrl(3000, 3000);
-            delayms(300);    // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            delayms(300); // 电机反转刹车，防止滑出赛道，时间根据速度调整
             MotorCtrl(0, 0); // 停车
             while (1)
                 ; // 入库完毕，永久停车
-        }
-        else // 0右出库
+        } else    // 0右出库
         {
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 直行大约10cm
             MotorCtrl(2500, 2500);       //
-            while (RAllPulse < ps + 600)
-            {
+            while (RAllPulse < ps + 600) {
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Right_Min); // 舵机向右打死为出库做准备
             MotorCtrl(3500, 3000);      // 右转，左轮快，右轮慢，
-            while (RAllPulse < ps + 1200)
-            {
+            while (RAllPulse < ps + 1200) {
                 delayms(10);
             }
         }
-    }
-    else // 0：左出入库；
+    } else // 0：左出入库；
     {
         if (inout) // 1左入库
         {
-            NowTime = (STM_GetNowUs(STM0) - NowTime) / 1000; // 获取STM0 当前时间，得到毫秒
+            NowTime = (STM_GetNowUs(STM0) - NowTime) /
+                      1000; // 获取STM0 当前时间，得到毫秒
             // 2020年新加出库元素，此处为盲走入库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid);  // 回中倒车
@@ -755,41 +701,36 @@ void OutInGarage(uint8 inout, uint8 lr)
             ps = RAllPulse;
             ServoCtrl(Servo_Left_Max); // 舵机向右打死为出库做准备
             MotorCtrl(-2000, -3000);   // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 3000)
-            {
+            while (RAllPulse > ps - 3000) {
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 回中倒车
             MotorCtrl(-2500, -2500);     // 左后倒车，右轮快，左轮慢
-            while (RAllPulse > ps - 1500)
-            {
+            while (RAllPulse > ps - 1500) {
                 delayms(10);
             }
             IfxCpu_disableInterrupts(); // 关闭所有中断
             MotorCtrl(3000, 3000);
-            delayms(300);    // 电机反转刹车，防止滑出赛道，时间根据速度调整
+            delayms(300); // 电机反转刹车，防止滑出赛道，时间根据速度调整
             MotorCtrl(0, 0); // 停车
             while (1)
                 ; // 入库完毕，永久停车
-        }
-        else // 0左出库
+        } else    // 0左出库
         {
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 直行大约10cm
             MotorCtrl(2500, 2500);       //
-            while (RAllPulse < ps + 600)
-            {
+            while (RAllPulse < ps + 600) {
                 delayms(10);
             }
 
             ps = RAllPulse;
             ServoCtrl(Servo_Left_Max); // 舵机向左打死为出库做准备
             MotorCtrl(3000, 3500);     // 左转，右轮快，左轮慢，
-            while (RAllPulse < ps + 1800)
-            {
+            while (RAllPulse < ps + 1800) {
                 delayms(10);
             }
         }
@@ -804,8 +745,5 @@ void OutInGarage(uint8 inout, uint8 lr)
  *  修改时间：2020年11月18日
  *  备    注：
  *************************************************************************/
-uint8 ReadOutInGarageMode(void)
-{
-    return (KEY_Read(DSW0));
-}
+uint8 ReadOutInGarageMode(void) { return (KEY_Read(DSW0)); }
 //

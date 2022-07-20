@@ -86,15 +86,15 @@ LED3p         P20_7      龙邱TC母板上LED1
 推荐使用CCU6模块，STM用作系统时钟或者延时；
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 
-#include <IfxCpu.h>
-#include <IfxScuWdt.h>
-#include <Platform_Types.h>
+#include "../APP/LQ_CAMERA.h"
+#include "LQ_CCU6.h"
+#include "LQ_DMA.h"
 #include "LQ_ImageProcess.h"
 #include "src/APP/LQ_TFT2.h"
 #include "src/Main/Main.h"
-#include "../APP/LQ_CAMERA.h"
-#include "LQ_DMA.h"
-#include "LQ_CCU6.h"
+#include <IfxCpu.h>
+#include <IfxScuWdt.h>
+#include <Platform_Types.h>
 // 定时器 5ms和50ms标志位
 volatile uint8 cpu1Flage5ms = 0;
 volatile uint8 cpu1Flage50ms = 0;
@@ -105,32 +105,31 @@ volatile sint16 targetSpeed = 10;
 // 避障标志位
 volatile uint8 evadibleFlage = 0;
 
-
-int core1_main (void)
-{
+int core1_main(void) {
     // 开启CPU总中断
     IfxCpu_enableInterrupts();
 
     // 关闭看门狗
-    IfxScuWdt_disableCpuWatchdog (IfxScuWdt_getCpuWatchdogPassword ());
+    IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
 
     // 等待CPU0 初始化完成
-    while(!IfxCpu_acquireMutex(&mutexCpu0InitIsOk));
+    while (!IfxCpu_acquireMutex(&mutexCpu0InitIsOk))
+        ;
 
     // 所有含有中断的测试都默认在CPU0中执行，如果需要用CPU1请参考龙邱B站视频。
     // 程序配套视频地址：https://space.bilibili.com/95313236
-    CCU6_InitConfig(CCU60, CCU6_Channel0, 100*1000);  // 100us进入一次中断
-    CCU6_InitConfig(CCU61, CCU6_Channel0, 100*1000);  // 100us进入一次中断
-    while(1)//主循环
+    CCU6_InitConfig(CCU60, CCU6_Channel0, 100 * 1000); // 100us进入一次中断
+    CCU6_InitConfig(CCU61, CCU6_Channel0, 100 * 1000); // 100us进入一次中断
+    while (1)                                          //主循环
     {
-        if (Camera_Flag == 2)
-        {
-            Get_Use_Image();     // 取出赛道及显示所需图像数据
-            Get_Bin_Image(3);    // 转换为01格式数据，0、1原图；2、3边沿提取
-            Bin_Image_Filter();  // 滤波，三面被围的数据将被修改为同一数值
-            ImageGetSide(Bin_Image, ImageSide);     //提取赛道边线
-            UpdownSideGet(Bin_Image, UpdowmSide);   //提取赛道边线
-            Camera_Flag = 0;     // 清除摄像头采集完成标志位  如果不清除，则不会再次采集数据
+        if (Camera_Flag == 2) {
+            Get_Use_Image(); // 取出赛道及显示所需图像数据
+            Get_Bin_Image(3); // 转换为01格式数据，0、1原图；2、3边沿提取
+            Bin_Image_Filter(); // 滤波，三面被围的数据将被修改为同一数值
+            ImageGetSide(Bin_Image, ImageSide);   //提取赛道边线
+            UpdownSideGet(Bin_Image, UpdowmSide); //提取赛道边线
+            Camera_Flag =
+                0; // 清除摄像头采集完成标志位  如果不清除，则不会再次采集数据
         }
     }
 }
