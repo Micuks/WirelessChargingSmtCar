@@ -171,24 +171,25 @@ void CCU60_CH1_IRQHandler(void)
         MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID, (float)(0 - ECPULSE1 + pw_err)); //-ServoDuty
         MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
+    const int max_pwm = 3000;
     //µç»úÏÞ·ù
-    if (MotorDuty1 > 5000)
-        MotorDuty1 = 5000;
-    else if (MotorDuty1 < -5000)
-        MotorDuty1 = -5000;
-    if (LSpeed_PID.out > 5000)
-        LSpeed_PID.out = 5000;
-    else if (LSpeed_PID.out < -5000)
-        LSpeed_PID.out = -5000;
+    if (MotorDuty1 > max_pwm)
+        MotorDuty1 = max_pwm;
+    else if (MotorDuty1 < -max_pwm)
+        MotorDuty1 = -max_pwm;
+    if (LSpeed_PID.out > max_pwm)
+        LSpeed_PID.out = max_pwm;
+    else if (LSpeed_PID.out < -max_pwm)
+        LSpeed_PID.out = -max_pwm;
 
-    if (MotorDuty2 > 5000)
-        MotorDuty2 = 5000;
-    else if (MotorDuty2 < -5000)
-        MotorDuty2 = -5000;
-    if (RSpeed_PID.out > 5000)
-        RSpeed_PID.out = 5000;
-    else if (RSpeed_PID.out < -5000)
-        RSpeed_PID.out = -5000;
+    if (MotorDuty2 > max_pwm)
+        MotorDuty2 = max_pwm;
+    else if (MotorDuty2 < -max_pwm)
+        MotorDuty2 = -max_pwm;
+    if (RSpeed_PID.out > max_pwm)
+        RSpeed_PID.out = max_pwm;
+    else if (RSpeed_PID.out < -max_pwm)
+        RSpeed_PID.out = -max_pwm;
 
     MotorCtrl(MotorDuty1, MotorDuty2);
 }
