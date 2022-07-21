@@ -155,17 +155,16 @@ void CCU60_CH1_IRQHandler(void) {
     if ((Power_On == 0) && (motor_flag == 0)) {
         //差速处理，差速比例自己修改
         if (ServoDuty > 0) {
-            MotorDuty1 = (int)PidIncCtrl(
-                &LSpeed_PID,
-                (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 5)); //-ServoDuty
+            MotorDuty1 = (int)PidIncCtrl( &LSpeed_PID,
+                (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); //-ServoDuty
             MotorDuty2 = (int)PidIncCtrl(
-                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 5));
+                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); // 或者不+servoduty
         } else {
             MotorDuty1 = (int)PidIncCtrl(
-                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 5));
+                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); // 或者不-servoduty
             MotorDuty2 = (int)PidIncCtrl(
                 &RSpeed_PID,
-                (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 5)); //+ServoDuty
+                (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); //+ServoDuty
         }
     } else {
         MotorDuty1 = (int)PidIncCtrl(
