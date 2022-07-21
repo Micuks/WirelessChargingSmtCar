@@ -87,6 +87,8 @@ void EncInit(void) {
  *************************************************************************/
 #ifdef USE7843or7971
 void MotorCtrl(sint32 motor1, sint32 motor2) {
+    motor1 = -motor1;
+    motor2 = -motor2;
     if (motor1 > 0) {
         ATOM_PWM_SetDuty(MOTOR3_P, motor1, MOTOR_FREQUENCY);
         IfxPort_setPinLow(&MODULE_P21, 5);
@@ -244,7 +246,7 @@ void TestMotor(void) {
             }
         }
 
-        MotorCtrl(duty, 0);
+        MotorCtrl(duty, duty);
         // MotorCtrl4w(duty, duty, duty, duty);
         sprintf(txt, "PWM: %05d;", duty);
         TFTSPI_P8X16Str(0, 5, txt, u16WHITE, u16BLACK); //×Ö·û´®ÏÔÊ¾
