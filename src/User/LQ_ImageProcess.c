@@ -243,6 +243,7 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
                 uint8_t *flag) {
     uint8_t i = 0;
     uint8_t errU2 = 0, errL1 = 0;
+    uint8_t errR1 = 0, errU1 = 0;
     uint8_t leftState = 0, rightState = 0;
     uint8_t count = 0, num = 0, py;
     uint8_t index = 0;
@@ -251,7 +252,7 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
     for (i = ROAD_START_ROW - 1; i > ROAD_END_ROW; i--) {
         if (imageSide[i][1] == 159)
             num++;
-        if (num >= 85) {
+        if (num >= 85) {    // num >= 130?
             rightState = 1; //右为丢线
             break;
         }
@@ -268,18 +269,16 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
             index++;
         }
         if (count >= 15 && index >= 4) {
-            leftState = 1; // 左hu标志
+            leftState = 1; // 左弧标志
             break;
         }
     }
-    errL1 = RoundaboutGetArc(
-        imageSide, 1, 5,
-        &py); //左线有弧
-              //    errR1 = RoundaboutGetArc(imageSide, 2, 5, &py); //右线有弧
-              //    errU1 = RoadUpSide_Mono(10, 70, imageUp);       //上单调增
-    errU2 = RoadUpSide_Mono(80, 150, imageUp);       //上单调减
-    if (rightState == 1 && errU2 == 2 && errL1 == 1) //
-    {
+    errL1 = RoundaboutGetArc(imageSide, 1, 5, &py); //左线有弧
+    errR1 = RoundaboutGetArc(imageSide, 2, 5, &py); //右线有弧
+    errU1 = RoadUpSide_Mono(10, 70, imageUp);       //上单调增
+    errU2 = RoadUpSide_Mono(80, 150, imageUp);      //上单调减
+    if (rightState == 1 && errU2 == 2 &&
+        errL1 == 1) { // 右线丢线, 上线单调递减, 左边有弧
         *flag = 1;
         return 1;
     }
@@ -317,7 +316,7 @@ uint8_t TProcess(uint8_t imageInput[LCDH][LCDW], uint8_t imageUp[2][LCDW],
             *flag = 2;
 
         //补线左转，增加转弯半径
-        //            ImageAddingLine(imageSide, 1, 90, 30, 0, ROAD_START_ROW);
+        ImageAddingLine(imageSide, 1, 90, 30, 0, ROAD_START_ROW);
         break;
 
     case 2:
@@ -329,9 +328,9 @@ uint8_t TProcess(uint8_t imageInput[LCDH][LCDW], uint8_t imageUp[2][LCDW],
                 errU2 = 1;
         }
         if (errU2) {
-            Target_Speed1 = 50;
-            Target_Speed2 = 50;
-            Servo_P = 11;
+            Target_Speed1 = 15;
+            Target_Speed2 = 15;
+            Servo_P = 12;
             *flag = 0;
             break;
         }
@@ -1464,7 +1463,8 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
             }
         }
 
-        if ((UpSideInput[0][pointY] > 30) || (D_flag)) {
+        if ((UpSideInput[0][pointY] > 30) ||
+            (D_flag)) { // 值30可能需要根据速度调整
             ImageAddingLine(imageSide, 1, 110, 35, 0,
                             ROAD_START_ROW); // 屏幕左下角连拐点（可自行修改）
             D_flag = 1;
@@ -1939,8 +1939,8 @@ void CameraCar(void) {
         RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
     }
     if (g_ucFlagT) {
-        Target_Speed1 = 40;
-        Target_Speed2 = 40;
+        Target_Speed1 = 10; // 急弯减速
+        Target_Speed2 = 10;
         //        Servo_P = 12;
         // T字处理
         TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
