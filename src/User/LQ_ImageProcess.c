@@ -2089,11 +2089,16 @@ void TFT_Show_Camera_Info(void)
  *  备        注：驱动2个电机
  *************************************************************************/
 static uint8_t g_ucFlagRoundabout_flag = 0;
+static uint8_t g_ucFlagOutGarage = 0;
 //环岛元素处理，其中自行修改得参数与小车的速度，误差放大比例有关，需要同学们自己根据实际情况来修改
 void CameraCar(void)
 {
 
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
+    if(g_ucFlagOutGarage == 0) {
+        OutInGarage(OUT_GARAGE, 1); // 1 == 右出入库
+        g_ucFlagOutGarage = 1; // 出库完成标志位
+    }
 
     uint8_t pointY;
 
