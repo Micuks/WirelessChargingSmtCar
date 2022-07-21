@@ -244,7 +244,7 @@ void TestMotor(void) {
             }
         }
 
-        MotorCtrl(duty, duty);
+        MotorCtrl(duty, 0);
         // MotorCtrl4w(duty, duty, duty, duty);
         sprintf(txt, "PWM: %05d;", duty);
         TFTSPI_P8X16Str(0, 5, txt, u16WHITE, u16BLACK); //×Ö·û´®ÏÔÊ¾
