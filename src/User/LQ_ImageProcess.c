@@ -2095,10 +2095,10 @@ void CameraCar(void)
 {
 
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
-    if(g_ucFlagOutGarage == 0) {
-        OutInGarage(OUT_GARAGE, 1); // 1 == 右出入库
-        g_ucFlagOutGarage = 1; // 出库完成标志位
-    }
+    // if(g_ucFlagOutGarage == 0) {
+    //     OutInGarage(OUT_GARAGE, 1); // 1 == 右出入库
+    //     g_ucFlagOutGarage = 1; // 出库完成标志位
+    // }
 
     uint8_t pointY;
 
