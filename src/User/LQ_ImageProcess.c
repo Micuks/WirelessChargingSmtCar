@@ -64,6 +64,7 @@ uint8_t g_ucFlagT = 0;
 
 pid_param_t BalDirgyro_PID; // 方向PID
 
+// 误差放大倍数 1.1
 uint8_t Servo_P = 11;
 
 char txt[30];
@@ -471,7 +472,7 @@ uint8_t RoadIsRoundabout(uint8_t Upimage[2][LCDW],
             num = 0;
     }
     errL = RoundaboutGetArc(image, 1, 5, &py);
-    errR = RoundaboutGetArc(image, 1, 5, &py);
+    errR = RoundaboutGetArc(image, 2, 5, &py);
 
     /* 右边线是否单调 */
     for (i = ROAD_START_ROW - 1; i > ROAD_END_ROW; i--) {
@@ -1118,6 +1119,7 @@ void RoundaboutProcess(uint8_t imageInput[LCDH][LCDW],
     case 7:
 
         ImageAddingLine(imageSide, 1, 80, 10, 0, ROAD_START_ROW); //参数自行修改
+        // ImageAddingLine(imageSide, 1, 100, 30, 0, ROAD_START_ROW);
 
         //判断上线是否有突起
         for (i = 159 - 1; i > 0; i--) {
@@ -1369,6 +1371,7 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
     if (errR && errF) {
         //判断上线是否有弧
         //（推荐判断弧的用这种办法，可自己封装成一个函数，之前的办法有一定的局限性，可自己替换）
+        // UpSideErr(imageInput, 20, &(*pY));
         for (i = 159 - 1; i > 0; i--) {
             if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
                 if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
@@ -1420,6 +1423,10 @@ sint32 RAllFork = 0;
 void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
                  uint8_t *state) {
     uint8_t pointY;
+
+    uint8_t i = 0, errR = 0, errF = 0;
+    uint8_t inc = 0, dec = 0, num = 0;
+
     static uint8_t D_flag = 0, dou_flag;
 
     //重新获取上边线
@@ -1427,7 +1434,36 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
 
     switch (*state) {
     case 1: //判断拐点 进入拐点
-        UpSideErr(UpSideInput, 1, 15, &pointY);
+        // UpSideErr(UpSideInput, 1, 15, &pointY);
+        for (i = 159 - 1; i > 0; i--) {
+            if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
+                if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
+                    num++;
+                    continue;
+                }
+                if (UpdowmSide[0][i] > UpdowmSide[0][i + 1]) {
+                    inc++;
+                    inc += num;
+                    num = 0;
+                }
+                if (UpdowmSide[0][i] < UpdowmSide[0][i + 1]) {
+                    dec++;
+                    dec += num;
+                    num = 0;
+                }
+                /* 有弧线 */
+                if (inc > 15 && dec > 15) {
+                    pointY = i + 15;
+                    // *flag = 1;
+                    // return 1;
+                }
+            } else {
+                inc = 0;
+                dec = 0;
+                num = 0;
+            }
+        }
+
         if ((UpSideInput[0][pointY] > 30) || (D_flag)) {
             ImageAddingLine(imageSide, 1, 110, 35, 0,
                             ROAD_START_ROW); // 屏幕左下角连拐点（可自行修改）
