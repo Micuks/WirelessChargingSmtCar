@@ -39,8 +39,8 @@ volatile sint16 ECPULSE1 = 0;  // 速度全局变量
 volatile sint16 ECPULSE2 = 0;  // 速度全局变量
 volatile sint32 RAllPulse = 0; // 速度全局变量
 
-volatile sint16 Target_Speed1 = 15;           // 速度全局变量
-volatile sint16 Target_Speed2 = 15;           // 速度全局变量
+volatile sint16 Target_Speed1 = 10;           // 速度全局变量
+volatile sint16 Target_Speed2 = 10;           // 速度全局变量
 unsigned char Power_On = 0;                   //充电标志位    0不充电  1充电，
 unsigned char Power_Off = 0;                  //充电标志位    0不充电  1充电
 unsigned char motor_flag = 0;                 //电机启停标志位
