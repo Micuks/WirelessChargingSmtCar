@@ -172,7 +172,7 @@ void CCU60_CH1_IRQHandler(void) {
         MotorDuty2 =
             (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
-    const int max_pwm = 3000;
+    const int max_pwm = 2500;
     //µç»úÏÞ·ù
     if (MotorDuty1 > max_pwm)
         MotorDuty1 = max_pwm;

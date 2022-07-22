@@ -38,7 +38,8 @@ sint16 g_sSteeringError = 0;
 uint8_t g_ucIsNoSide = 0;
 
 /**  @brief    主跑行  */
-#define ROAD_MAIN_ROW 40
+#define ROAD_MAIN_ROW 60
+// 原为40
 
 /**  @brief    使用起始行  */
 #define ROAD_START_ROW 115
@@ -1485,12 +1486,12 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         if (RoadUpSide_Mono(5, 90, UpSideInput)) //判断出口结束三岔口
         {
 
-            Target_Speed1 = 20;
-            Target_Speed2 = 20;
+            Target_Speed1 = 15; // 调试时减慢了速度, 原为20
+            Target_Speed2 = 15;
             Servo_P = 12;
             if (g_ucForkNum == 2) {
-                Target_Speed1 = 22;
-                Target_Speed2 = 22;
+                Target_Speed1 = 15; //调试减慢了速度, 原为22
+                Target_Speed2 = 15;
                 Servo_P = 12;
             }
             D_flag = 0;
@@ -1893,6 +1894,7 @@ void TFT_Show_Camera_Info(void) {
  *************************************************************************/
 static uint8_t g_ucFlagRoundabout_flag = 0;
 static uint8_t g_ucFlagOutGarage = 0;
+#define rvsMotor
 //环岛元素处理，其中自行修改得参数与小车的速度，误差放大比例有关，需要同学们自己根据实际情况来修改
 void CameraCar(void) {
 
@@ -1934,17 +1936,17 @@ void CameraCar(void) {
 
     /********************************T形路口**********************************************/
 
-    // if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
-    //     //检查T字
-    //     RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
-    // }
-    // if (g_ucFlagT) {
-    //     Target_Speed1 = 10; // 急弯减速
-    //     Target_Speed2 = 10;
-    //     //        Servo_P = 12;
-    //     // T字处理
-    //     TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
-    // }
+    if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
+        //检查T字
+        RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
+    }
+    if (g_ucFlagT) {
+        Target_Speed1 = 10; // 急弯减速
+        Target_Speed2 = 10;
+        //        Servo_P = 12;
+        // T字处理
+        TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
+    }
 
     /************************************************************************
       2021/7/19测试代码  Y形路口
@@ -1980,6 +1982,9 @@ void CameraCar(void) {
     g_sSteeringError = RoadGetSteeringError(ImageSide, ROAD_MAIN_ROW);
     //偏差放大
     ServoDuty = g_sSteeringError * Servo_P / 10;
+#ifdef rvsMotor
+    ServoDuty = -ServoDuty; //取反偏差
+#endif
     //偏差限幅
     if (ServoDuty > 170)
         ServoDuty = 170;
