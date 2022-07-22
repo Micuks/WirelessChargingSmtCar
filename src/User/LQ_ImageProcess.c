@@ -38,7 +38,7 @@ sint16 g_sSteeringError = 0;
 uint8_t g_ucIsNoSide = 0;
 
 /**  @brief    主跑行  */
-#define ROAD_MAIN_ROW 60
+#define ROAD_MAIN_ROW 50
 // 原为40
 
 /**  @brief    使用起始行  */
