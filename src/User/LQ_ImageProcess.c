@@ -1476,14 +1476,50 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         break;
     case 2: //出 补线
 
-        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
+        // if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
+        //     *state = 3;
+        if (dou_flag == 1) {
+
+            for (i = 159 - 1; i > 0; i--) {
+                if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
+                    if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
+                        num++;
+                        continue;
+                    }
+                    if (UpdowmSide[0][i] > UpdowmSide[0][i + 1]) {
+                        inc++;
+                        inc += num;
+                        num = 0;
+                    }
+                    if (UpdowmSide[0][i] < UpdowmSide[0][i + 1]) {
+                        dec++;
+                        dec += num;
+                        num = 0;
+                    }
+                    /* 有弧线 */
+                    if (inc > 15 && dec > 15) {
+                        pointY = i + 15;
+                        // *flag = 1;
+                        // return 1;
+                    }
+                } else {
+                    inc = 0;
+                    dec = 0;
+                    num = 0;
+                }
+            }
+        }
+        if ((UpSideInput[0][pointY] > 30) &&
+            (dou_flag)) { // 值30可能需要根据速度调整
             *state = 3;
+        }
         if (RoundaboutGetArc(imageSide, 2, 5, &pointY))
             dou_flag = 1;
+
         break;
     case 3:                                                        //出 补线
-        ImageAddingLine(imageSide, 1, 100, 30, 0, ROAD_START_ROW); //可自行修改
-        if (RoadUpSide_Mono(5, 90, UpSideInput)) //判断出口结束三岔口
+        ImageAddingLine(imageSide, 1, 110, 35, 0, ROAD_START_ROW); //可自行修改
+        if (RoadUpSide_Mono(30, 150, UpSideInput)) //判断出口结束三岔口
         {
 
             Target_Speed1 = 15; // 调试时减慢了速度, 原为20
