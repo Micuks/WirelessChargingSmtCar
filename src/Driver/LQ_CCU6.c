@@ -156,15 +156,15 @@ void CCU60_CH1_IRQHandler(void) {
         //差速处理，差速比例自己修改
         if (ServoDuty > 0) {
             MotorDuty1 = (int)PidIncCtrl( &LSpeed_PID,
-                (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); //-ServoDuty
+                (float)(Target_Speed1 - ECPULSE1 + ServoDuty / 10)); //-ServoDuty
             MotorDuty2 = (int)PidIncCtrl(
-                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); // 或者不+servoduty
+                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 - ServoDuty / 10)); // 或者不+servoduty
         } else {
             MotorDuty1 = (int)PidIncCtrl(
-                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); // 或者不-servoduty
+                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 + ServoDuty / 10)); // 或者不-servoduty
             MotorDuty2 = (int)PidIncCtrl(
                 &RSpeed_PID,
-                (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); //+ServoDuty
+                (float)(Target_Speed2 - ECPULSE2 - ServoDuty / 10)); //+ServoDuty
         }
     } else {
         MotorDuty1 = (int)PidIncCtrl(
@@ -172,7 +172,7 @@ void CCU60_CH1_IRQHandler(void) {
         MotorDuty2 =
             (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
-    const int max_pwm = 3000;
+    const int max_pwm = 2500;
     //电机限幅
     if (MotorDuty1 > max_pwm)
         MotorDuty1 = max_pwm;
