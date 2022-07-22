@@ -1522,12 +1522,12 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         if (RoadUpSide_Mono(30, 150, UpSideInput)) //判断出口结束三岔口
         {
 
-            Target_Speed1 = 15; // 调试时减慢了速度, 原为20
-            Target_Speed2 = 15;
+            Target_Speed1 = 20; // 调试时减慢了速度, 原为20
+            Target_Speed2 = 20;
             Servo_P = 12;
             if (g_ucForkNum == 2) {
-                Target_Speed1 = 15; //调试减慢了速度, 原为22
-                Target_Speed2 = 15;
+                Target_Speed1 = 20; //调试减慢了速度, 原为22
+                Target_Speed2 = 20;
                 Servo_P = 12;
             }
             D_flag = 0;
