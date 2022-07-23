@@ -38,7 +38,7 @@ sint16 g_sSteeringError = 0;
 uint8_t g_ucIsNoSide = 0;
 
 /**  @brief    主跑行  */
-#define ROAD_MAIN_ROW 50
+#define ROAD_MAIN_ROW 60
 // 原为40
 
 /**  @brief    使用起始行  */
@@ -1949,8 +1949,8 @@ void CameraCar(void) {
     if (g_ucFlagRoundabout) {
         g_ucFlagRoundabout_flag = 1;
         //   环岛处理
-        Target_Speed1 = 45; //速度调整
-        Target_Speed2 = 45;
+        Target_Speed1 = 20; //速度调整 原45
+        Target_Speed2 = 20;
         Servo_P = 12; //误差放大
         RoundaboutProcess(Bin_Image, ImageSide, UpdowmSide,
                           &g_ucFlagRoundabout);
@@ -1972,17 +1972,17 @@ void CameraCar(void) {
 
     /********************************T形路口**********************************************/
 
-    if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
-        //检查T字
-        RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
-    }
-    if (g_ucFlagT) {
-        Target_Speed1 = 10; // 急弯减速
-        Target_Speed2 = 10;
-        //        Servo_P = 12;
-        // T字处理
-        TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
-    }
+    // if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
+    //     //检查T字
+    //     RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
+    // }
+    // if (g_ucFlagT) {
+    //     Target_Speed1 = 10; // 急弯减速
+    //     Target_Speed2 = 10;
+    //     //        Servo_P = 12;
+    //     // T字处理
+    //     TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
+    // }
 
     /************************************************************************
       2021/7/19测试代码  Y形路口
