@@ -1371,29 +1371,29 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
     errR = RoundaboutGetArc(imageSide, 2, 5, &pointY);
     errF = RoundaboutGetArc(imageSide, 1, 5, &pointY);
 
-    if (errR) {
-        if (UpSideErr(imageInput, 1, 20, &pointY)) {
-            for (i = 110; i > 40; i--) {
-                if (imageSide[i][0] == 0)
-                    num++;
-                if (num == 65) {
-                    *flag = 1;
-                    return 1;
-                }
-            }
+    // if (errR) {
+    //     if (UpSideErr(imageInput, 1, 20, &pointY)) {
+    //         for (i = 110; i > 40; i--) {
+    //             if (imageSide[i][0] == 0)
+    //                 num++;
+    //             if (num == 65) {
+    //                 *flag = 1;
+    //                 return 1;
+    //             }
+    //         }
 
-            num = 0;
-            // Ä£·Â½øĞĞÓÒ±ß¼ì²â
-            for (i = 110; i > 40; i--) {
-                if (imageSide[i][1] == 0)
-                    num++;
-                if (num == 65) {
-                    *flag = 1;
-                    return 1;
-                }
-            }
-        }
-    }
+    //         num = 0;
+    //         // Ä£·Â½øĞĞÓÒ±ß¼ì²â
+    //         for (i = 110; i > 40; i--) {
+    //             if (imageSide[i][1] == 0)
+    //                 num++;
+    //             if (num == 65) {
+    //                 *flag = 1;
+    //                 return 1;
+    //             }
+    //         }
+    //     }
+    // }
     num = 0;
     if (errR && errF) {
         //ÅĞ¶ÏÉÏÏßÊÇ·ñÓĞ»¡
@@ -1416,7 +1416,7 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
                     num = 0;
                 }
                 /* ÓĞ»¡Ïß */
-                if (inc > 15 && dec > 15) {
+                if (inc > 12 && dec > 12) {
                     *flag = 1;
                     return 1;
                 }
