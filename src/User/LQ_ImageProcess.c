@@ -1365,6 +1365,17 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
                     return 1;
                 }
             }
+
+            num = 0;
+            // Ä£·Â½øÐÐÓÒ±ß¼ì²â
+            for (i = 110; i > 40; i--) {
+                if (imageSide[i][1] == 0)
+                    num++;
+                if (num == 65) {
+                    *flag = 1;
+                    return 1;
+                }
+            }
         }
     }
     num = 0;
@@ -1479,6 +1490,28 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         // if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
         //     *state = 3;
         if (dou_flag == 1) {
+            if (errR) {
+                if (UpSideErr(UpSideInput, 1, 20, &pointY)) {
+                    for (i = 110; i > 40; i--) {
+                        if (imageSide[i][0] == 0)
+                            num++;
+                        if (num == 65) {
+                            *state = 3;
+                        }
+                    }
+
+                    num = 0;
+                    // Ä£·Â½øÐÐÓÒ±ß¼ì²â
+                    for (i = 110; i > 40; i--) {
+                        if (imageSide[i][1] == 0)
+                            num++;
+                        if (num == 65) {
+                            *state = 3;
+                        }
+                    }
+                }
+            }
+            num = 0;
 
             for (i = 159 - 1; i > 0; i--) {
                 if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
