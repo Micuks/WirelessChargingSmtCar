@@ -39,8 +39,8 @@ volatile sint16 ECPULSE1 = 0;  // 速度全局变量
 volatile sint16 ECPULSE2 = 0;  // 速度全局变量
 volatile sint32 RAllPulse = 0; // 速度全局变量
 
-volatile sint16 Target_Speed1 = 20; // 速度全局变量
-volatile sint16 Target_Speed2 = 20; // 速度全局变量
+volatile sint16 Target_Speed1 = 25; // 速度全局变量
+volatile sint16 Target_Speed2 = 25; // 速度全局变量
 unsigned char Power_On = 0;         //充电标志位    0不充电  1充电，
 unsigned char Power_Off = 0;        //充电标志位    0不充电  1充电
 unsigned char motor_flag = 0;       //电机启停标志位
@@ -212,8 +212,8 @@ void CCU61_CH0_IRQHandler(void) {
                                      IfxCcu6_InterruptSource_t12PeriodMatch);
 
     /* ADC采集 */
-    val0 = ADC_Read(ADC0);
-    val1 = ADC_Read(ADC1);
+    val1 = ADC_Read(ADC0);
+    val0 = ADC_Read(ADC1);
     val2 = ADC_Read(ADC2);
     val3 = ADC_Read(ADC3);
 }
