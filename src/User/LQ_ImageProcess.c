@@ -275,6 +275,7 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
     //     }
     // }
 
+    num = 0;
     //检测左边线丢线
     for (i = ROAD_START_ROW - 1; i > ROAD_END_ROW; i--) {
         if (imageSide[i][0] == 0)
@@ -1368,32 +1369,35 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
     uint8_t pointY;
 
     /* 检查弧线 */
-    errR = RoundaboutGetArc(imageSide, 2, 5, &pointY);
-    errF = RoundaboutGetArc(imageSide, 1, 5, &pointY);
+    errR = RoundaboutGetArc(imageSide, 2, 5, &pointY); //右边弧
+    errF = RoundaboutGetArc(imageSide, 1, 5, &pointY); //左边弧
 
-    // if (errR) {
-    //     if (UpSideErr(imageInput, 1, 20, &pointY)) {
-    //         for (i = 110; i > 40; i--) {
-    //             if (imageSide[i][0] == 0)
-    //                 num++;
-    //             if (num == 65) {
-    //                 *flag = 1;
-    //                 return 1;
-    //             }
-    //         }
-
-    //         num = 0;
-    //         // 模仿进行右边检测
-    //         for (i = 110; i > 40; i--) {
-    //             if (imageSide[i][1] == 0)
-    //                 num++;
-    //             if (num == 65) {
-    //                 *flag = 1;
-    //                 return 1;
-    //             }
-    //         }
-    //     }
-    // }
+    if (errR) {
+        if (UpSideErr(imageInput, 1, 15, &pointY)) {
+            for (i = 110; i > 40; i--) {
+                if (imageSide[i][0] == 0)
+                    num++;
+                if (num == 65) {
+                    *flag = 1;
+                    return 1;
+                }
+            }
+        }
+    }
+    num = 0;
+    if (errF) {
+        if (UpSideErr(imageInput, 1, 15, &pointY)) {
+            // 模仿进行右边检测
+            for (i = 110; i > 40; i--) {
+                if (imageSide[i][1] == 0)
+                    num++;
+                if (num == 65) {
+                    *flag = 1;
+                    return 1;
+                }
+            }
+        }
+    }
     num = 0;
     if (errR && errF) {
         //判断上线是否有弧
@@ -1498,12 +1502,13 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
             D_flag = 1;
         }
         if (D_flag == 1 && RoadUpSide_Mono(30, 150, UpSideInput) == 2) {
+            // 上边线30到150单调递减
             *state = 2;
         }
         break;
     case 2: //出 补线
 
-        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 10, &pointY)))
+        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
             *state = 3;
         // // if (dou_flag == 1) {
         // if (errR) {
@@ -1562,12 +1567,12 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         //     (dou_flag)) { // 值30可能需要根据速度调整
         //     *state = 3;
         // }
-        if (RoundaboutGetArc(imageSide, 2, 10, &pointY))
+        if (RoundaboutGetArc(imageSide, 2, 5, &pointY))
             dou_flag = 1;
 
         break;
     case 3:                                                        //出 补线
-        ImageAddingLine(imageSide, 1, 110, 35, 0, ROAD_START_ROW); //可自行修改
+        ImageAddingLine(imageSide, 1, 110, 35, 0, ROAD_START_ROW); //可自行修改 行0-115补线
         if (RoadUpSide_Mono(30, 150, UpSideInput)) //判断出口结束三岔口
         {
 
