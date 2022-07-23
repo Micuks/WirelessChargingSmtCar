@@ -122,20 +122,20 @@ void CCU60_CH1_IRQHandler(void) {
 
     /********************检测发射线圈位置并校准********************************/
     //触发
-    if ((val0 > 2000) && (val1 > 1800) && (Power_On == 0) && (Power_Off == 0)) {
+    if ((val0 > 1800) && (val1 > 1400) && (Power_On == 0) && (Power_Off == 0)) {
         Power_On = 1;
         motor_flag = 0;
     }
     //触发后执行
     if ((Power_On == 1) && (Pw_flag == 0)) {
         pw_err = (val0 - val1) / 20;
-        if ((val3 > 900) || (val0 > 2250)) {
+        if ((val3 > 900) || (val0 > 1900)) {
             Pw_flag = 1;
         }
     }
     if (Pw_flag == 1) {
         pw_err = (val0 - val1) / 20;
-        if (val2 > 1500) //充电完成
+        if (val2 > 1300) //充电完成
         {
             Power_Off = 1;
             Power_On = 0;
