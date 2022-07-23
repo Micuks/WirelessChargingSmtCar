@@ -42,7 +42,7 @@ uint8_t g_ucIsNoSide = 0;
 // 原为40
 
 /**  @brief    使用起始行  */
-#define ROAD_START_ROW 115
+#define ROAD_START_ROW 155
 
 /**  @brief    使用结束行  */
 #define ROAD_END_ROW 10
