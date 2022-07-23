@@ -259,21 +259,32 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
         }
     }
 
-    for (i = ROAD_START_ROW - 1; i > 20; i--) {
-        if (imageSide[i][0] <= imageSide[i + 1][0]) {
-            if (index < 4)
-                index = 0;
-            count++;
-        } else {
-            if (count < 15)
-                count = 0;
-            index++;
-        }
-        if (count >= 15 && index >= 4) {
-            leftState = 1; // 左弧标志
+    // for (i = ROAD_START_ROW - 1; i > 20; i--) {
+    //     if (imageSide[i][0] <= imageSide[i + 1][0]) {
+    //         if (index < 4)
+    //             index = 0;
+    //         count++;
+    //     } else {
+    //         if (count < 15)
+    //             count = 0;
+    //         index++;
+    //     }
+    //     if (count >= 15 && index >= 4) {
+    //         leftState = 1; // 左弧标志
+    //         break;
+    //     }
+    // }
+
+    //检测左边线丢线
+    for (i = ROAD_START_ROW - 1; i > ROAD_END_ROW; i--) {
+        if (imageSide[i][0] == 0)
+            num++;
+        if (num >= 85) {   // num >= 130?
+            leftState = 1; //左为丢线
             break;
         }
     }
+
     errL1 = RoundaboutGetArc(imageSide, 1, 5, &py); //左线有弧
     errR1 = RoundaboutGetArc(imageSide, 2, 5, &py); //右线有弧
     errU1 = RoadUpSide_Mono(10, 70, imageUp);       //上单调增
@@ -282,6 +293,11 @@ uint8_t RoadIsT(uint8_t imageUp[2][LCDW], uint8_t imageSide[LCDH][2],
         errL1 == 1) { // 右线丢线, 上线单调递减, 左边有弧
         *flag = 1;
         return 1;
+    }
+    if (leftState == 1 && errU1 == 1 &&
+        errR1 == 1) { // 左线丢线,上线单调递增,右边有弧
+        *flag = 2;
+        return 2;
     }
     return 0;
 }
@@ -2005,17 +2021,17 @@ void CameraCar(void) {
 
     /********************************T形路口**********************************************/
 
-    // if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
-    //     //检查T字
-    //     RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
-    // }
-    // if (g_ucFlagT) {
-    //     Target_Speed1 = 10; // 急弯减速
-    //     Target_Speed2 = 10;
-    //     //        Servo_P = 12;
-    //     // T字处理
-    //     TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
-    // }
+    if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
+        //检查T字
+        RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
+    }
+    if (g_ucFlagT) {
+        Target_Speed1 = 10; // 急弯减速
+        Target_Speed2 = 10;
+        //        Servo_P = 12;
+        // T字处理
+        TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
+    }
 
     /************************************************************************
       2021/7/19测试代码  Y形路口
