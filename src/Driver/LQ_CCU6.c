@@ -122,19 +122,20 @@ void CCU60_CH1_IRQHandler(void) {
 
     /********************检测发射线圈位置并校准********************************/
     //触发
-    if ((val0 > 1800) && (val1 > 1400) && (Power_On == 0) && (Power_Off == 0)) {
+    unsigned short val_err = 200;
+    if ((val0 > 1700) && (val1 > 1200) && (Power_On == 0) && (Power_Off == 0)) {
         Power_On = 1;
         motor_flag = 0;
     }
     //触发后执行
     if ((Power_On == 1) && (Pw_flag == 0)) {
-        pw_err = (val0 - val1) / 20;
+        pw_err = (val0 - val1 - val_err) / 20;
         if ((val3 > 900) || (val0 > 1900)) {
             Pw_flag = 1;
         }
     }
     if (Pw_flag == 1) {
-        pw_err = (val0 - val1) / 20;
+        pw_err = (val0 - val1 - val_err) / 20;
         if (val2 > 1300) //充电完成
         {
             Power_Off = 1;
@@ -155,16 +156,19 @@ void CCU60_CH1_IRQHandler(void) {
     if ((Power_On == 0) && (motor_flag == 0)) {
         //差速处理，差速比例自己修改
         if (ServoDuty > 0) {
-            MotorDuty1 = (int)PidIncCtrl( &LSpeed_PID,
-                (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); //-ServoDuty
+            MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID,
+                                         (float)(Target_Speed1 - ECPULSE1 -
+                                                 ServoDuty / 10)); //-ServoDuty
             MotorDuty2 = (int)PidIncCtrl(
-                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); // 或者不+servoduty
+                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 +
+                                     ServoDuty / 10)); // 或者不+servoduty
         } else {
             MotorDuty1 = (int)PidIncCtrl(
-                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 - ServoDuty / 10)); // 或者不-servoduty
-            MotorDuty2 = (int)PidIncCtrl(
-                &RSpeed_PID,
-                (float)(Target_Speed2 - ECPULSE2 + ServoDuty / 10)); //+ServoDuty
+                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 -
+                                     ServoDuty / 10)); // 或者不-servoduty
+            MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID,
+                                         (float)(Target_Speed2 - ECPULSE2 +
+                                                 ServoDuty / 10)); //+ServoDuty
         }
     } else {
         MotorDuty1 = (int)PidIncCtrl(
