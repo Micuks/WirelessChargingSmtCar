@@ -1503,7 +1503,7 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         break;
     case 2: //出 补线
 
-        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 15, &pointY)))
+        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 10, &pointY)))
             *state = 3;
         // // if (dou_flag == 1) {
         // if (errR) {
@@ -1562,7 +1562,7 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         //     (dou_flag)) { // 值30可能需要根据速度调整
         //     *state = 3;
         // }
-        if (RoundaboutGetArc(imageSide, 2, 15, &pointY))
+        if (RoundaboutGetArc(imageSide, 2, 10, &pointY))
             dou_flag = 1;
 
         break;
