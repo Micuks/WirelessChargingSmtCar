@@ -1505,65 +1505,66 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
 
         // if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
         //     *state = 3;
-        if (dou_flag == 1) {
-            if (errR) {
-                if (UpSideErr(UpSideInput, 1, 20, &pointY)) {
-                    for (i = 110; i > 40; i--) {
-                        if (imageSide[i][0] == 0)
-                            num++;
-                        if (num == 65) {
-                            *state = 3;
-                        }
-                    }
-
-                    num = 0;
-                    // 模仿进行右边检测
-                    for (i = 110; i > 40; i--) {
-                        if (imageSide[i][1] == 0)
-                            num++;
-                        if (num == 65) {
-                            *state = 3;
-                        }
+        // if (dou_flag == 1) {
+        if (errR) {
+            if (UpSideErr(UpSideInput, 1, 20, &pointY)) {
+                for (i = 110; i > 40; i--) {
+                    if (imageSide[i][0] == 0)
+                        num++;
+                    if (num == 65) {
+                        *state = 3;
                     }
                 }
-            }
-            num = 0;
 
-            for (i = 159 - 1; i > 0; i--) {
-                if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
-                    if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
+                num = 0;
+                // 模仿进行右边检测
+                for (i = 110; i > 40; i--) {
+                    if (imageSide[i][1] == 0)
                         num++;
-                        continue;
+                    if (num == 65) {
+                        *state = 3;
                     }
-                    if (UpdowmSide[0][i] > UpdowmSide[0][i + 1]) {
-                        inc++;
-                        inc += num;
-                        num = 0;
-                    }
-                    if (UpdowmSide[0][i] < UpdowmSide[0][i + 1]) {
-                        dec++;
-                        dec += num;
-                        num = 0;
-                    }
-                    /* 有弧线 */
-                    if (inc > 15 && dec > 15) {
-                        pointY = i + 15;
-                        // *flag = 1;
-                        // return 1;
-                    }
-                } else {
-                    inc = 0;
-                    dec = 0;
-                    num = 0;
                 }
             }
         }
-        if ((UpSideInput[0][pointY] > 30) &&
-            (dou_flag)) { // 值30可能需要根据速度调整
+        num = 0;
+
+        for (i = 159 - 1; i > 0; i--) {
+            if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
+                if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
+                    num++;
+                    continue;
+                }
+                if (UpdowmSide[0][i] > UpdowmSide[0][i + 1]) {
+                    inc++;
+                    inc += num;
+                    num = 0;
+                }
+                if (UpdowmSide[0][i] < UpdowmSide[0][i + 1]) {
+                    dec++;
+                    dec += num;
+                    num = 0;
+                }
+                /* 有弧线 */
+                if (inc > 15 && dec > 15) {
+                    pointY = i + 15;
+                    // *flag = 1;
+                    // return 1;
+                }
+            } else {
+                inc = 0;
+                dec = 0;
+                num = 0;
+            }
+        }
+        // }
+        // if ((UpSideInput[0][pointY] > 30) &&
+        //     (dou_flag)) { // 值30可能需要根据速度调整
+        if (UpSideInput[0][pointY] > 30) {
             *state = 3;
         }
-        if (RoundaboutGetArc(imageSide, 2, 5, &pointY))
-            dou_flag = 1;
+        // if (RoundaboutGetArc(imageSide, 2, 5, &pointY))
+        //     dou_flag = 1;
 
         break;
     case 3:                                                        //出 补线
