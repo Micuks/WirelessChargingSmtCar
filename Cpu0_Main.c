@@ -192,10 +192,10 @@ int core0_main(void) {
     // PID≤Œ ˝…Ë÷√
     PidInit(&LSpeed_PID);
     PidInit(&RSpeed_PID);
-    LSpeed_PID.kp = 135;
+    LSpeed_PID.kp = 200;
     LSpeed_PID.ki = 1.5;
     LSpeed_PID.kd = 0.5;
-    RSpeed_PID.kp = 135;
+    RSpeed_PID.kp = 200;
     RSpeed_PID.ki = 1.5;
     RSpeed_PID.kd = 0.5;
 

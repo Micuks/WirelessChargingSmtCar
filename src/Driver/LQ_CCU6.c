@@ -39,8 +39,8 @@ volatile sint16 ECPULSE1 = 0;  // 速度全局变量
 volatile sint16 ECPULSE2 = 0;  // 速度全局变量
 volatile sint32 RAllPulse = 0; // 速度全局变量
 
-volatile sint16 Target_Speed1 = 25; // 速度全局变量
-volatile sint16 Target_Speed2 = 25; // 速度全局变量
+volatile sint16 Target_Speed1 = 20; // 速度全局变量
+volatile sint16 Target_Speed2 = 20; // 速度全局变量
 unsigned char Power_On = 0;         //充电标志位    0不充电  1充电，
 unsigned char Power_Off = 0;        //充电标志位    0不充电  1充电
 unsigned char motor_flag = 0;       //电机启停标志位
@@ -156,20 +156,23 @@ void CCU60_CH1_IRQHandler(void) {
     /***************************电机闭环和差速********************************/
     if ((Power_On == 0) && (motor_flag == 0)) {
         //差速处理，差速比例自己修改
+        sint16 err = -5;
         if (ServoDuty > 0) {
-            MotorDuty1 = (int)PidIncCtrl(&LSpeed_PID,
-                                         (float)(Target_Speed1 - ECPULSE1 -
-                                                 ServoDuty / 10)); //-ServoDuty
+            MotorDuty1 =
+                (int)PidIncCtrl(&LSpeed_PID,
+                                (float)(Target_Speed1 + err - ECPULSE1 -
+                                        ServoDuty / 10)); //-ServoDuty
             MotorDuty2 = (int)PidIncCtrl(
-                &RSpeed_PID, (float)(Target_Speed2 - ECPULSE2 +
+                &RSpeed_PID, (float)(Target_Speed2 + err - ECPULSE2 +
                                      ServoDuty / 10)); // 或者不+servoduty
         } else {
             MotorDuty1 = (int)PidIncCtrl(
-                &LSpeed_PID, (float)(Target_Speed1 - ECPULSE1 -
+                &LSpeed_PID, (float)(Target_Speed1 + err - ECPULSE1 -
                                      ServoDuty / 10)); // 或者不-servoduty
-            MotorDuty2 = (int)PidIncCtrl(&RSpeed_PID,
-                                         (float)(Target_Speed2 - ECPULSE2 +
-                                                 ServoDuty / 10)); //+ServoDuty
+            MotorDuty2 =
+                (int)PidIncCtrl(&RSpeed_PID,
+                                (float)(Target_Speed2 + err - ECPULSE2 +
+                                        ServoDuty / 10)); //+ServoDuty
         }
     } else {
         MotorDuty1 = (int)PidIncCtrl(
@@ -177,7 +180,7 @@ void CCU60_CH1_IRQHandler(void) {
         MotorDuty2 =
             (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
-    const int max_pwm = 5000;
+    const int max_pwm = 3000;
     //电机限幅
     if (MotorDuty1 > max_pwm)
         MotorDuty1 = max_pwm;

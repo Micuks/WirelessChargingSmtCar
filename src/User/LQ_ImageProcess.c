@@ -216,8 +216,8 @@ uint8_t RoadIsZebra(uint8_t image[LCDH][LCDW], uint8_t *flag) {
                 count++;
             }
         }
-        if (count > 5) {
-            *flag = 1;
+        if (count > 4) {
+            *flag ++;
             return 1;
         }
     }
@@ -1636,6 +1636,8 @@ void ZebraProcess(uint8_t imageSide[LCDH][2], uint8_t state, int16_t *speed) {
 
     if (count > 100) {
         *speed = 0;
+        Target_Speed1 = 0;
+        Target_Speed2 = 0;
         while (1)
             ;
     }
@@ -2068,15 +2070,16 @@ void CameraCar(void) {
     }
     /*************************车库识别代码***********************************/
     /*************************这部分未修改***********************************/
-    // if (g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0 &&
-    //     g_ucFlagFork == 0) {
-    //     /* 检测车库 */
-    //     RoadIsCross(ImageSide, &g_ucFlagZebra);
-    // }
-    // if (g_ucFlagZebra) {
-    //     /* 车库处理 */
-    //     ZebraProcess(Image_Use, 1, 1200);
-    // }
+    if (g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra < 2 &&
+        g_ucFlagFork == 0) {
+        /* 检测车库 */
+        // RoadIsCross(ImageSide, &g_ucFlagZebra);
+        RoadIsZebra(ImageSide, &g_ucFlagZebra);
+    }
+    if (g_ucFlagZebra == 2) {
+        /* 车库处理 */
+        ZebraProcess(Image_Use, 2, 1200);
+    }
 
     /* 根据主跑行，求取舵机偏差 */
     g_sSteeringError = RoadGetSteeringError(ImageSide, ROAD_MAIN_ROW);

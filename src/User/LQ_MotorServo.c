@@ -732,9 +732,9 @@ void OutInGarage(uint8 inout, uint8 lr) {
 
             ps = RAllPulse;
             // ServoCtrl(Servo_Left_Max); // 舵机向左打死为出库做准备
-            ServoDuty = 170;
+            ServoDuty = 120;
             // MotorCtrl(2500, 3000);     // 左转，右轮快，左轮慢，
-            while (RAllPulse < ps + 1800) {
+            while (RAllPulse < ps + 1200) {
                 delayms(10);
             }
         }
