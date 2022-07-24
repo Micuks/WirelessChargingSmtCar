@@ -134,6 +134,8 @@ unsigned short val1;
 unsigned short val2;
 unsigned short val3;
 
+volatile unsigned short g_OutGarageFlag = 0;
+
 extern unsigned char Powern_On;
 extern unsigned char Power_Off;
 extern unsigned char motor_flag;
@@ -190,10 +192,10 @@ int core0_main(void) {
     // PID参数设置
     PidInit(&LSpeed_PID);
     PidInit(&RSpeed_PID);
-    LSpeed_PID.kp = 250;
+    LSpeed_PID.kp = 135;
     LSpeed_PID.ki = 1.5;
     LSpeed_PID.kd = 0.5;
-    RSpeed_PID.kp = 250;
+    RSpeed_PID.kp = 135;
     RSpeed_PID.ki = 1.5;
     RSpeed_PID.kd = 0.5;
 
@@ -207,6 +209,9 @@ int core0_main(void) {
 
     //开启CCU6定时器
     CCU6_InitConfig(CCU60, CCU6_Channel1, 5000); // 5ms进入一次中断
+
+    OutInGarage(OUT_GARAGE, 0);                  // 2 左出入库
+    g_OutGarageFlag = 1;
 
     char txt[32];
     while (1) //主循环

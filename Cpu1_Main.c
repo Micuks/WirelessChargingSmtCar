@@ -116,6 +116,9 @@ int core1_main(void) {
     while (!IfxCpu_acquireMutex(&mutexCpu0InitIsOk))
         ;
 
+    while(g_OutGarageFlag == 0) {
+        ;
+    }
     // 所有含有中断的测试都默认在CPU0中执行，如果需要用CPU1请参考龙邱B站视频。
     // 程序配套视频地址：https://space.bilibili.com/95313236
     CCU6_InitConfig(CCU60, CCU6_Channel0, 100 * 1000); // 100us进入一次中断

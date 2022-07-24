@@ -24,6 +24,7 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 extern App_Cpu0 g_AppCpu0; // brief CPU 0 global data
 extern IfxCpu_mutexLock mutexCpu0InitIsOk;   /** CPU0 初始化完成标志位  */
 extern volatile char mutexCpu0TFTIsOk;       /** TFT18使用标志位  */
+extern g_OutGarageFlag;
 /**
  * 定时器 5ms和50ms标志位
  */

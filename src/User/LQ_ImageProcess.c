@@ -38,7 +38,7 @@ sint16 g_sSteeringError = 0;
 uint8_t g_ucIsNoSide = 0;
 
 /**  @brief    主跑行  */
-#define ROAD_MAIN_ROW 50
+#define ROAD_MAIN_ROW 60
 // 原为40
 
 /**  @brief    使用起始行  */
@@ -732,16 +732,26 @@ uint8_t RoundaboutGetArc(uint8_t imageSide[LCDH][2], uint8_t status,
  */
 uint8_t UpSideErr(uint8_t SideInput[2][LCDW], uint8_t status, uint8_t num,
                   uint8_t *index) {
-    uint8_t dec = 0, inc = 0, i;
+    uint8_t dec = 0, inc = 0, i, cnt = 0;
     //上线是否右突起
     switch (status) {
     case 1:
         for (i = 159 - 1; i > 0; i--) {
-            if (UpdowmSide[0][i] > 1 && UpdowmSide[0][i + 1] > 1) {
-                if (UpdowmSide[0][i] >= UpdowmSide[0][i + 1])
+            if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
+                if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
+                    cnt++;
+                    continue;
+                }
+                if (UpdowmSide[0][i] > UpdowmSide[0][i + 1]) {
                     inc++;
-                else
+                    inc += cnt;
+                    cnt = 0;
+                }
+                if (UpdowmSide[0][i] < UpdowmSide[0][i + 1]) {
                     dec++;
+                    dec += cnt;
+                    cnt = 0;
+                }
                 /* 有弧线 */
                 if (inc > num && dec > num) {
                     *index = i + num;
@@ -750,8 +760,25 @@ uint8_t UpSideErr(uint8_t SideInput[2][LCDW], uint8_t status, uint8_t num,
             } else {
                 inc = 0;
                 dec = 0;
+                cnt = 0;
             }
         }
+        // for (i = 159 - 1; i > 0; i--) {
+        //     if (UpdowmSide[0][i] > 1 && UpdowmSide[0][i + 1] > 1) {
+        //         if (UpdowmSide[0][i] >= UpdowmSide[0][i + 1])
+        //             inc++;
+        //         else
+        //             dec++;
+        //         /* 有弧线 */
+        //         if (inc > num && dec > num) {
+        //             *index = i + num;
+        //             return 1;
+        //         }
+        //     } else {
+        //         inc = 0;
+        //         dec = 0;
+        //     }
+        // }
         break;
     //下边线
     case 2:
@@ -1164,8 +1191,8 @@ void RoundaboutProcess(uint8_t imageInput[LCDH][LCDW],
         break;
 
     case 8:
-        Target_Speed1 = 15;
-        Target_Speed1 = 15;
+        Target_Speed1 = 20;
+        Target_Speed1 = 20;
         Servo_P = 20;
         ImageAddingLine(imageSide, 1, 30, 30, 159, ROAD_START_ROW);
         //          Up_flag = RoadUpSide_Mono(20, 155,UpdowmSide);
@@ -1181,8 +1208,8 @@ void RoundaboutProcess(uint8_t imageInput[LCDH][LCDW],
                     finderr = 0;
                     Up_flag = 0;
                     err1 = 0;           //清空静态变量以便下次使用
-                    Target_Speed1 = 15; //速度回复
-                    Target_Speed2 = 15;
+                    Target_Speed1 = 22; //速度回复
+                    Target_Speed2 = 22;
                     Servo_P = 15; //转向回复
                     *state = 0;
                     break;
@@ -1373,25 +1400,11 @@ uint8_t RoadIsFork(uint8_t imageInput[2][LCDW], uint8_t imageSide[LCDH][2],
     errF = RoundaboutGetArc(imageSide, 1, 5, &pointY); //左边弧
 
     if (errR) {
-        if (UpSideErr(imageInput, 1, 15, &pointY)) {
+        if (UpSideErr(imageInput, 1, 10, &pointY)) {
             for (i = 110; i > 40; i--) {
                 if (imageSide[i][0] == 0)
                     num++;
-                if (num == 65) {
-                    *flag = 1;
-                    return 1;
-                }
-            }
-        }
-    }
-    num = 0;
-    if (errF) {
-        if (UpSideErr(imageInput, 1, 15, &pointY)) {
-            // 模仿进行右边检测
-            for (i = 110; i > 40; i--) {
-                if (imageSide[i][1] == 0)
-                    num++;
-                if (num == 65) {
+                if (num == 50) {
                     *flag = 1;
                     return 1;
                 }
@@ -1465,7 +1478,7 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
 
     switch (*state) {
     case 1: //判断拐点 进入拐点
-        // UpSideErr(UpSideInput, 1, 15, &pointY);
+            // UpSideErr(UpSideInput, 1, 15, &pointY);
         for (i = 159 - 1; i > 0; i--) {
             if (UpdowmSide[0][i] != 0 && UpdowmSide[0][i + 1] != 0) {
                 if (UpdowmSide[0][i] == UpdowmSide[0][i + 1]) {
@@ -1508,7 +1521,7 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
         break;
     case 2: //出 补线
 
-        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 5, &pointY)))
+        if ((dou_flag == 1) && (!RoundaboutGetArc(imageSide, 2, 15, &pointY)))
             *state = 3;
         // // if (dou_flag == 1) {
         // if (errR) {
@@ -1571,8 +1584,9 @@ void ForkProcess(uint8_t UpSideInput[2][LCDW], uint8_t imageSide[LCDH][2],
             dou_flag = 1;
 
         break;
-    case 3:                                                        //出 补线
-        ImageAddingLine(imageSide, 1, 110, 35, 0, ROAD_START_ROW); //可自行修改 行0-115补线
+    case 3: //出 补线
+        ImageAddingLine(imageSide, 1, 110, 35, 0,
+                        ROAD_START_ROW); //可自行修改 行0-115补线
         if (RoadUpSide_Mono(30, 150, UpSideInput)) //判断出口结束三岔口
         {
 
@@ -1965,14 +1979,15 @@ void TFT_Show_Camera_Info(void) {
     sprintf(txt, "%05d", g_sSteeringError); //误差值
     TFTSPI_P6X8Str(0, 15, txt, u16RED, u16BLUE);
 
-    sprintf(txt, "R[%02d]", g_ucFlagRoundabout); //环岛标志
+    sprintf(txt, "R[%01d]", g_ucFlagRoundabout); //环岛标志
     TFTSPI_P6X8Str(6, 15, txt, u16RED, u16BLUE);
 
-    sprintf(txt, "T[%02d]", g_ucFlagT); // T口标志
-    TFTSPI_P6X8Str(12, 15, txt, u16RED, u16BLUE);
+    sprintf(txt, "T[%01d]", g_ucFlagT); // T口标志
+    TFTSPI_P6X8Str(10, 15, txt, u16RED, u16BLUE);
 
     sprintf(txt, "Y[%01d]", g_ucFlagFork); // Y标志
-    TFTSPI_P6X8Str(18, 15, txt, u16RED, u16BLUE);
+    TFTSPI_P6X8Str(14, 15, txt, u16RED, u16BLUE);
+
 }
 /*************************************************************************
  *  函数名称：void CameraCar(void)
@@ -1983,16 +1998,11 @@ void TFT_Show_Camera_Info(void) {
  *  备        注：驱动2个电机
  *************************************************************************/
 static uint8_t g_ucFlagRoundabout_flag = 0;
-static uint8_t g_ucFlagOutGarage = 0;
 #define rvsMotor
 //环岛元素处理，其中自行修改得参数与小车的速度，误差放大比例有关，需要同学们自己根据实际情况来修改
 void CameraCar(void) {
 
     LED_Ctrl(LED1, RVS); // LED闪烁 指示程序运行状态
-    // if(g_ucFlagOutGarage == 0) {
-    //     OutInGarage(OUT_GARAGE, 1); // 1 == 右出入库
-    //     g_ucFlagOutGarage = 1; // 出库完成标志位
-    // }
 
     uint8_t pointY;
 
@@ -2003,8 +2013,8 @@ void CameraCar(void) {
     if (g_ucFlagRoundabout) {
         g_ucFlagRoundabout_flag = 1;
         //   环岛处理
-        Target_Speed1 = 20; //速度调整 原45
-        Target_Speed2 = 20;
+        Target_Speed1 = 25; //速度调整 原45
+        Target_Speed2 = 25;
         Servo_P = 12; //误差放大
         RoundaboutProcess(Bin_Image, ImageSide, UpdowmSide,
                           &g_ucFlagRoundabout);
@@ -2026,17 +2036,17 @@ void CameraCar(void) {
 
     /********************************T形路口**********************************************/
 
-    if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
-        //检查T字
-        RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
-    }
-    if (g_ucFlagT) {
-        Target_Speed1 = 10; // 急弯减速
-        Target_Speed2 = 10;
-        //        Servo_P = 12;
-        // T字处理
-        TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
-    }
+    // if (g_ucFlagRoundabout == 0 && g_ucFlagFork == 0 && g_ucFlagT == 0) {
+    //     //检查T字
+    //     RoadIsT(UpdowmSide, ImageSide, &g_ucFlagT);
+    // }
+    // if (g_ucFlagT) {
+    //     Target_Speed1 = 10; // 急弯减速
+    //     Target_Speed2 = 10;
+    //     //        Servo_P = 12;
+    //     // T字处理
+    //     TProcess(Bin_Image, UpdowmSide, ImageSide, &g_ucFlagT);
+    // }
 
     /************************************************************************
       2021/7/19测试代码  Y形路口
@@ -2050,23 +2060,23 @@ void CameraCar(void) {
 
     if (g_ucFlagFork) //遇到岔口
     {
-        Target_Speed1 = 18;
-        Target_Speed2 = 18;
+        Target_Speed1 = 20;
+        Target_Speed2 = 20;
         Servo_P = 10;
         // Y字处理
         ForkProcess(UpdowmSide, ImageSide, &g_ucFlagFork);
     }
     /*************************车库识别代码***********************************/
     /*************************这部分未修改***********************************/
-    if (g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0 &&
-        g_ucFlagFork == 0) {
-        /* 检测车库 */
-        RoadIsCross(ImageSide, &g_ucFlagZebra);
-    }
-    if (g_ucFlagZebra) {
-        /* 车库处理 */
-        ZebraProcess(Image_Use, 1, 1200);
-    }
+    // if (g_ucFlagRoundabout == 0 && g_ucFlagCross == 0 && g_ucFlagZebra == 0 &&
+    //     g_ucFlagFork == 0) {
+    //     /* 检测车库 */
+    //     RoadIsCross(ImageSide, &g_ucFlagZebra);
+    // }
+    // if (g_ucFlagZebra) {
+    //     /* 车库处理 */
+    //     ZebraProcess(Image_Use, 1, 1200);
+    // }
 
     /* 根据主跑行，求取舵机偏差 */
     g_sSteeringError = RoadGetSteeringError(ImageSide, ROAD_MAIN_ROW);

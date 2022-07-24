@@ -667,6 +667,7 @@ void OutInGarage(uint8 inout, uint8 lr) {
                 ; // 入库完毕，永久停车
         } else    // 0右出库
         {
+            delayms(3000);
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
             ServoCtrl(Servo_Center_Mid); // 直行大约10cm
@@ -677,7 +678,7 @@ void OutInGarage(uint8 inout, uint8 lr) {
 
             ps = RAllPulse;
             ServoCtrl(Servo_Right_Min); // 舵机向右打死为出库做准备
-            MotorCtrl(3500, 3000);      // 右转，左轮快，右轮慢，
+            MotorCtrl(3000, 2000);      // 右转，左轮快，右轮慢，
             while (RAllPulse < ps + 1200) {
                 delayms(10);
             }
@@ -722,15 +723,17 @@ void OutInGarage(uint8 inout, uint8 lr) {
         {
             // 2020年新加出库元素，此处为盲走出库
             ps = RAllPulse;
-            ServoCtrl(Servo_Center_Mid); // 直行大约10cm
-            MotorCtrl(2500, 2500);       //
+            // ServoCtrl(Servo_Center_Mid); // 直行大约10cm
+            ServoDuty = 0;
+            // MotorCtrl(2000, 2000);       //
             while (RAllPulse < ps + 600) {
                 delayms(10);
             }
 
             ps = RAllPulse;
-            ServoCtrl(Servo_Left_Max); // 舵机向左打死为出库做准备
-            MotorCtrl(3000, 3500);     // 左转，右轮快，左轮慢，
+            // ServoCtrl(Servo_Left_Max); // 舵机向左打死为出库做准备
+            ServoDuty = 170;
+            // MotorCtrl(2500, 3000);     // 左转，右轮快，左轮慢，
             while (RAllPulse < ps + 1800) {
                 delayms(10);
             }

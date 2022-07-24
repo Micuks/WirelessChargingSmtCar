@@ -119,11 +119,12 @@ void CCU60_CH1_IRQHandler(void) {
         ENC4_InPut_P02_8); // 左电机 母板上编码器1，小车前进为负值
     ECPULSE2 = ENC_GetCounter(
         ENC6_InPut_P20_3); // 右电机 母板上编码器2，小车前进为正值
+    RAllPulse += (ECPULSE1 + ECPULSE2) / 2;
 
     /********************检测发射线圈位置并校准********************************/
     //触发
-    unsigned short val_err = 200;
-    if ((val0 > 1700) && (val1 > 1200) && (Power_On == 0) && (Power_Off == 0)) {
+    unsigned short val_err = 440;
+    if ((val0 > 1800) && (val1 > 1300) && (Power_On == 0) && (Power_Off == 0)) {
         Power_On = 1;
         motor_flag = 0;
     }
@@ -136,7 +137,7 @@ void CCU60_CH1_IRQHandler(void) {
     }
     if (Pw_flag == 1) {
         pw_err = (val0 - val1 - val_err) / 20;
-        if (val2 > 1300) //充电完成
+        if (val2 > 1200) //充电完成
         {
             Power_Off = 1;
             Power_On = 0;
@@ -176,7 +177,7 @@ void CCU60_CH1_IRQHandler(void) {
         MotorDuty2 =
             (int)PidIncCtrl(&RSpeed_PID, (float)(0 - ECPULSE2 + pw_err));
     }
-    const int max_pwm = 3000;
+    const int max_pwm = 5000;
     //电机限幅
     if (MotorDuty1 > max_pwm)
         MotorDuty1 = max_pwm;
